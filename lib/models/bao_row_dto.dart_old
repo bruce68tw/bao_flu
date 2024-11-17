@@ -1,0 +1,28 @@
+class BaoRowDto {
+  bool isMove;
+  bool isBatch;
+  String giftType;
+  String id;
+  String name;
+  String corp;
+  String startTime;
+
+  BaoRowDto({required this.isMove, required this.isBatch,
+    required this.giftType,
+    required this.id, required this.name,
+    required this.corp, required this.startTime
+    });
+
+  ///convert json to model, static for be parameter !!
+  static BaoRowDto fromJson(Map<String, dynamic> json){
+    return BaoRowDto(
+      isMove : (json['IsMove'] == 1),
+      isBatch : (json['IsBatch'] == 1),
+      giftType : json['GiftType'],
+      id : json['Id'],
+      name : json['Name'],
+      corp : json['Corp'],
+      startTime : json['StartTime'],
+    );
+  }
+}
