@@ -30,7 +30,7 @@ class _MsgState extends State<Msg> {
     if (!await Xp.isRegAsync(context)) return;
 
     //get rows, check & set total rows
-    await HttpUt.getJsonA(context, 'Cms/GetPage', true, _pagerSrv.getDtJson(),
+    await HttpUt.getJsonA(context, 'Cms/GetPage', true, _pagerSrv.getDtJson2(),
         (json) {
       if (json == null) return;
 
@@ -42,7 +42,7 @@ class _MsgState extends State<Msg> {
 
   ///get view body widget
   Widget getBody() {
-    var rows = _pagerDto.data;
+    var rows = _pagerDto.rows;
     if (rows.isEmpty) return Xp.emptyMsg();
 
     //#region get rows
@@ -59,11 +59,11 @@ class _MsgState extends State<Msg> {
         trailing: WG2.textBtn('看明細', () => onDetail(row.id)),
       ));
 
-      list.add(WG.divider());
+      list.add(WG2.divider());
     }
     //#endregion
 
-    list.add(_pagerSrv.getWidget(_pagerDto));
+    list.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
     return ListView(children: list);
   }
 

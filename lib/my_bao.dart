@@ -19,7 +19,7 @@ class _MyBaoState extends State<MyBao> {
   void initState() {
     //set first, coz function parameter !!
     _pagerSrv = PagerSrv(showA);
-
+    
     //call before reload()
     super.initState();
     Future.delayed(Duration.zero, () => showA());
@@ -30,7 +30,7 @@ class _MyBaoState extends State<MyBao> {
     if (!await Xp.isRegAsync(context)) return;
 
     //get rows & check
-    await HttpUt.getJsonA(context, 'MyBao/GetPage', true, _pagerSrv.getDtJson(),
+    await HttpUt.getJsonA(context, 'MyBao/GetPage', true, _pagerSrv.getDtJson2(),
         (json) {
       if (json == null) return;
 
@@ -41,11 +41,11 @@ class _MyBaoState extends State<MyBao> {
 
   ///get view body widget
   Widget getBody() {
-    var rows = _pagerDto.data;
+    var rows = _pagerDto.rows;
     if (rows.isEmpty) return Xp.emptyMsg();
 
     var list = Xp.baosToWidgets(rows, rowsToTrails(rows));
-    list.add(_pagerSrv.getWidget(_pagerDto));
+    list.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
     return ListView(children: list);
   }
 

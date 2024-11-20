@@ -37,7 +37,7 @@ class _BaoState extends State<Bao> {
     if (!await Xp.isRegAsync(context)) return;
 
     //5.讀取資料庫, get rows & check
-    await HttpUt.getJsonA(context, 'Bao/GetPage', true, _pagerSrv.getDtJson(),
+    await HttpUt.getJsonA(context, 'Bao/GetPage', true, _pagerSrv.getDtJson2(),
         (json) {
       if (json == null) return;
 
@@ -49,11 +49,11 @@ class _BaoState extends State<Bao> {
 
   //6.顯示畫面內容, get view body widget
   Widget getBody() {
-    var rows = _pagerDto.data;
+    var rows = _pagerDto.rows;
     if (rows.isEmpty) return Xp.emptyMsg();
 
     var list = Xp.baosToWidgets(rows, rowsToTrails(rows));
-    list.add(_pagerSrv.getWidget(_pagerDto));
+    list.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
     return ListView(children: list);
   }
 

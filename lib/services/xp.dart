@@ -218,7 +218,8 @@ class Xp {
 
     //download it
     var action = isBatch ? 'Stage/GetBatchImage' : 'Stage/GetStepImage';
-    return await HttpUt.saveUnzipA(context, action, {'id': baoId}, dirImage);
+    await HttpUt.saveUnzipA(context, action, {'id': baoId}, dirImage);
+    return 1;
   }
 
   //get body widget for stageStep/stageBatch
