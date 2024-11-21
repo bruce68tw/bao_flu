@@ -15,7 +15,7 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.127:5001';
+  static const apiServer = '192.168.43.6:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -33,7 +33,7 @@ class Xp {
   static String _userId = '';
 
   ///aeskey with correct length(16 char)
-  static String _aesKey16 = '';
+  //static String _aesKey16 = '';
 
   ///baoId,join status(1:join, else:cancel)
   static final Map<String, String> _attend = {};
@@ -42,7 +42,7 @@ class Xp {
   static Future initFunA([bool testMode = false]) async {
     if (!_isInit) {
       await FunUt.init(isHttps, apiServer);
-      _aesKey16 = StrUt.preZero(16, aesKey, true);
+      //_aesKey16 = StrUt.preZero(16, aesKey, true);
       _isInit = true;
     }
   }
@@ -52,7 +52,6 @@ class Xp {
   static String _getAesKey() {
     return StrUt.preZero(16, XpUt.aesKey, true);
   }
-  */
 
   /// aes encode
   /// @data plain text
@@ -61,7 +60,6 @@ class Xp {
     return StrUt.aesEncode(data, _aesKey16);
   }
 
-  /*
   /// aes decode
   /// @data encode text
   /// @return plain string
@@ -87,14 +85,14 @@ class Xp {
       return false;
     }
 
-    await HttpUt.getJsonA(context!, 'Home/Login', false, {'info': _userId},
+    await HttpUt.getJsonA(context!, 'Home/Login', false, {'userId': _userId},
         (json) {
       if (json == null) return false;
 
       var token = json['token'];
       if (StrUt.notEmpty(token)) {
         HttpUt.setToken(token!);
-        FunUt.isLogin = true;
+        //FunUt.isLogin = true;
         _importAttend(json['attends']);
       }
     });
@@ -141,6 +139,11 @@ class Xp {
     file.writeAsString(userId);
   }
 
+  static void setInfoAndToken(Map<String, dynamic> json) {
+    Xp.setInfo(json['userId']);
+    HttpUt.setToken(json['token']);
+  }
+
   /// get info file object
   static File openInfoFile() {
     return File(FileUt.getFilePath(Xp.regFile));
@@ -155,13 +158,13 @@ class Xp {
   ///return empty message
   static Widget emptyMsg() {
     return const Center(
-      child: Text(
-        '目前無任何資料。',
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          fontSize: 18,
-          color: Colors.red,
-        ),
+        child: Text(
+      '目前無任何資料。',
+      textAlign: TextAlign.center,
+      style: TextStyle(
+        fontSize: 18,
+        color: Colors.red,
+      ),
     ));
   }
 

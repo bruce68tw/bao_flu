@@ -51,7 +51,8 @@ class _UserRecoverState extends State<UserRecover> {
     }
 
     //return encode userId
-    var data = Xp.encode('$authCode,${widget.email}');
+    //var data = Xp.encode('$authCode,${widget.email}');
+    var data = '$authCode,${widget.email}';
     await HttpUt.getStrA(context, 'User/Auth', false, {'data': data}, (key) {
       Xp.setInfo(key);
       ToolUt.msg(context, '回復帳號作業已經完成。');

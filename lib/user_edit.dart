@@ -128,8 +128,8 @@ class _UserEditState extends State<UserEdit> {
     //return encode userId
     //var data = Xp.encode('$authCode,${emailCtrl.text}');
     var data = '$authCode,${emailCtrl.text}';
-    await HttpUt.getStrA(context, 'User/Auth', false, {'data': data}, (key) {
-      Xp.setInfo(key);  //key:userId
+    await HttpUt.getStrA(context, 'User/Auth', false, {'data': data}, (json) {
+      Xp.setInfoAndToken(json);
       ToolUt.msg(context, '認証作業完成。');
     });
   }
