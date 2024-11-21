@@ -22,19 +22,19 @@ class _BaoState extends State<Bao> {
   @override
   void initState() {
     //2.分頁元件, set first, coz function parameter !!
-    _pagerSrv = PagerSrv(rebuildAsync);
+    _pagerSrv = PagerSrv(rebuildA);
 
     //call before rebuild()
     super.initState();
 
     //3.讀取資料, call async rebuild
-    Future.delayed(Duration.zero, () => rebuildAsync());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
   /// rebuild page
-  Future rebuildAsync() async {
+  Future rebuildA() async {
     //4.檢查初始狀態, check initial status
-    if (!await Xp.isRegAsync(context)) return;
+    if (!await Xp.isRegA(context)) return;
 
     //5.讀取資料庫, get rows & check
     await HttpUt.getJsonA(context, 'Bao/GetPage', true, _pagerSrv.getDtJson2(),

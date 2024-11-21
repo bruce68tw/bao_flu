@@ -27,7 +27,7 @@ class _MyBaoState extends State<MyBao> {
 
   //reload page
   Future showA() async {
-    if (!await Xp.isRegAsync(context)) return;
+    if (!await Xp.isRegA(context)) return;
 
     //get rows & check
     await HttpUt.getJsonA(context, 'MyBao/GetPage', true, _pagerSrv.getDtJson2(),

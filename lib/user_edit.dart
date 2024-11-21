@@ -27,12 +27,12 @@ class _UserEditState extends State<UserEdit> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildAsync());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
-  Future rebuildAsync() async {
+  Future rebuildA() async {
     //get info file
-    var file = Xp.getInfoFile();
+    var file = Xp.openInfoFile();
     _isNew = !await file.exists();
     var run = true;
     if (_isNew) {
@@ -70,7 +70,7 @@ class _UserEditState extends State<UserEdit> {
   }
 
   ///create account
-  Future onCreateAsync() async {
+  Future onCreateA() async {
     // validate
     if (!_formKey.currentState!.validate()) return;
 
@@ -100,7 +100,7 @@ class _UserEditState extends State<UserEdit> {
   }
 
   ///update account
-  Future onUpdateAsync() async {
+  Future onUpdateA() async {
     // validate
     if (!_formKey.currentState!.validate()) return;
 
@@ -116,8 +116,8 @@ class _UserEditState extends State<UserEdit> {
     });
   }
 
-  ///on authenticate new account
-  Future onAuthAsync() async {
+  ///完成認証, on authenticate new account
+  Future onAuthA() async {
     // validate
     var authCode = authCtrl.text;
     if (StrUt.isEmpty(authCode)) {
@@ -126,9 +126,10 @@ class _UserEditState extends State<UserEdit> {
     }
 
     //return encode userId
-    var data = Xp.encode('$authCode,${emailCtrl.text}');
+    //var data = Xp.encode('$authCode,${emailCtrl.text}');
+    var data = '$authCode,${emailCtrl.text}';
     await HttpUt.getStrA(context, 'User/Auth', false, {'data': data}, (key) {
-      Xp.setInfo(key);
+      Xp.setInfo(key);  //key:userId
       ToolUt.msg(context, '認証作業完成。');
     });
   }
@@ -203,9 +204,9 @@ class _UserEditState extends State<UserEdit> {
                     },
                   ),
                   !_isNew
-                      ? WG2.tailBtn('修改資料', () => onUpdateAsync())
+                      ? WG2.tailBtn('修改資料', () => onUpdateA())
                       : !_showAuth
-                          ? WG2.tailBtn('建立帳號', () => onCreateAsync())
+                          ? WG2.tailBtn('建立帳號', () => onCreateA())
                           : Column(children: <Widget>[
                               //WG.tailBtn('建立帳戶'),
                               TextFormField(
@@ -213,7 +214,7 @@ class _UserEditState extends State<UserEdit> {
                                 style: WG2.inputStyle(),
                                 decoration: WG2.inputLabel('請輸入Email信件裡面的認証碼'),
                               ),
-                              WG2.tailBtn('執行認証', () => onAuthAsync()),
+                              WG2.tailBtn('執行認証', () => onAuthA()),
                             ]),
                 ],
               ),

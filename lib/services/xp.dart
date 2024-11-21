@@ -15,7 +15,7 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.6:5001';
+  static const apiServer = '192.168.43.127:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -29,8 +29,8 @@ class Xp {
   ///already init or not
   static bool _isInit = false;
 
-  ///encode userId in info file
-  static String _encodeId = '';
+  ///userId in info file
+  static String _userId = '';
 
   ///aeskey with correct length(16 char)
   static String _aesKey16 = '';
@@ -39,7 +39,7 @@ class Xp {
   static final Map<String, String> _attend = {};
   //=== auto set end ===
 
-  static Future initFunAsync([bool testMode = false]) async {
+  static Future initFunA([bool testMode = false]) async {
     if (!_isInit) {
       await FunUt.init(isHttps, apiServer);
       _aesKey16 = StrUt.preZero(16, aesKey, true);
@@ -70,24 +70,24 @@ class Xp {
   }
   */
 
-  /// system initial & login
+  /// 判斷是否註冊, system initial & login
   /// @context current context
   /// @return initial status
-  static Future<bool> isRegAsync(BuildContext? context) async {
+  static Future<bool> isRegA(BuildContext? context) async {
     //initial if need
-    await initFunAsync();
+    await initFunA();
     if (FunUt.isLogin) return true;
 
     //read info file if need
-    if (_encodeId == '') _encodeId = await readInfoAsync();
+    if (_userId == '') _userId = await readInfoA();
 
     //set FunHp.isLogin
-    if (StrUt.isEmpty(_encodeId)) {
+    if (StrUt.isEmpty(_userId)) {
       ToolUt.msg(context, '您尚未註冊, 請先執行[我的資料]->[維護基本資料]');
       return false;
     }
 
-    await HttpUt.getJsonA(context!, 'Home/Login', false, {'info': _encodeId},
+    await HttpUt.getJsonA(context!, 'Home/Login', false, {'info': _userId},
         (json) {
       if (json == null) return false;
 
@@ -132,36 +132,36 @@ class Xp {
     }
   }
 
-  /// get info file object
-  static void setInfo(String encodeId) {
-    _encodeId = encodeId;
+  /// set _userId & write info file
+  static void setInfo(String userId) {
+    _userId = userId;
 
     //create info file
-    var file = Xp.getInfoFile();
-    file.writeAsString(encodeId);
+    var file = Xp.openInfoFile();
+    file.writeAsString(userId);
   }
 
   /// get info file object
-  static File getInfoFile() {
+  static File openInfoFile() {
     return File(FileUt.getFilePath(Xp.regFile));
   }
 
   /// read info file string
-  static Future<String> readInfoAsync() async {
-    var file = getInfoFile();
+  static Future<String> readInfoA() async {
+    var file = openInfoFile();
     return await file.exists() ? await file.readAsString() : '';
   }
 
   ///return empty message
   static Widget emptyMsg() {
     return const Center(
-        child: Text(
-      '目前無任何資料。',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 18,
-        color: Colors.red,
-      ),
+      child: Text(
+        '目前無任何資料。',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.red,
+        ),
     ));
   }
 

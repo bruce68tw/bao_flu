@@ -27,7 +27,7 @@ class _MsgState extends State<Msg> {
 
   /// reload page
   Future rebuildAsync() async {
-    if (!await Xp.isRegAsync(context)) return;
+    if (!await Xp.isRegA(context)) return;
 
     //get rows, check & set total rows
     await HttpUt.getJsonA(context, 'Cms/GetPage', true, _pagerSrv.getDtJson2(),
