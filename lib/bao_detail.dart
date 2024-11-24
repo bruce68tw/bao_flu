@@ -17,10 +17,10 @@ class _BaoDetailState extends State<BaoDetail> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildAsync());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
-  Future rebuildAsync() async {
+  Future rebuildA() async {
     //get bao detail
     await HttpUt.getJsonA(context, 'Bao/GetDetail', false, {'id': widget.id},
         (json) {
@@ -32,7 +32,7 @@ class _BaoDetailState extends State<BaoDetail> {
 
   /// onclick join Bao
   /// @baoId
-  Future onAttendAsync(String baoId) async {
+  Future onAttendA(String baoId) async {
     //result: 0(not start),1(start),xxx(error msg)
     await HttpUt.getStrA(context, 'Bao/Attend', false, {'baoId': baoId},
         (result) {
@@ -41,6 +41,7 @@ class _BaoDetailState extends State<BaoDetail> {
       } else if (result == '0') {
         ToolUt.msg(context, '活動未開始, 已加入[我的尋寶]。');
       } else if (result == '1') {
+        //todo
         ToolUt.ans(context, '已加入[我的尋寶], 是否開始進行尋寶活動?', () {});
       } else {
         //case of error
@@ -79,7 +80,7 @@ class _BaoDetailState extends State<BaoDetail> {
             WG2.tailBtn(
                 '我要參加',
                 (Xp.getAttendStatus(widget.id) == null)
-                    ? () => onAttendAsync(widget.id)
+                    ? () => onAttendA(widget.id)
                     : null),
           ],
         ),

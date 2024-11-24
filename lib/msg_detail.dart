@@ -21,10 +21,10 @@ class _MsgDetailState extends State<MsgDetail> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildAsync());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
-  Future rebuildAsync() async {
+  Future rebuildA() async {
     //1.get Cms row
     await HttpUt.getJsonA(context, 'Cms/GetDetail', false, {'id': widget.id},
         (json) {

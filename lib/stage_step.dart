@@ -32,10 +32,10 @@ class _StageStepState extends State<StageStep> {
     _dirImage = Xp.dirStageImage(_baoId);
 
     super.initState();
-    Future.delayed(Duration.zero, () => showAsync());
+    Future.delayed(Duration.zero, () => showA());
   }
 
-  Future<void> showAsync() async {
+  Future<void> showA() async {
     /*
     //create folder if need
     var dirBao = Directory(_dirImage);
@@ -66,7 +66,7 @@ class _StageStepState extends State<StageStep> {
   }
 
   //onclick submit
-  Future<void> onSubmitAsync() async {
+  Future<void> onSubmitA() async {
     var reply = replyCtrl.text;
     if (StrUt.isEmpty(reply)) {
       ToolUt.msg(context, '不可空白。');
@@ -91,7 +91,7 @@ class _StageStepState extends State<StageStep> {
 
     return Scaffold(
       appBar: WG2.appBar('解謎: ${widget.name}'),
-      body: Xp.getStageBody(_dirImage, _stageIndex, replyCtrl, onSubmitAsync),
+      body: Xp.getStageBody(_dirImage, _stageIndex, replyCtrl, onSubmitA),
     );
   }
 } //class

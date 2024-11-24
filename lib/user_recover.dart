@@ -29,7 +29,7 @@ class _UserRecoverState extends State<UserRecover> {
   }
 
   /// onclick send email
-  Future onEmailAsync() async {
+  Future onEmailA() async {
     //get error msg if any
     await HttpUt.getStrA(
         context, 'User/EmailRecover', false, {'email': widget.email}, (msg) {
@@ -42,7 +42,7 @@ class _UserRecoverState extends State<UserRecover> {
     });
   }
 
-  Future onRecoverAsync() async {
+  Future onRecoverA() async {
     // validate
     var authCode = authCtrl.text;
     if (StrUt.isEmpty(authCode)) {
@@ -75,14 +75,14 @@ class _UserRecoverState extends State<UserRecover> {
                 '請點擊下方的 [寄送認証郵件] 按鈕, 系統將會寄送認証Email到上面的信箱。'),
             WG2.divider(),
             (_step == 1)
-                ? WG2.tailBtn('寄送認証郵件', () => onEmailAsync())
+                ? WG2.tailBtn('寄送認証郵件', () => onEmailA())
                 : Column(children: <Widget>[
                     TextFormField(
                       controller: authCtrl,
                       style: WG2.inputStyle(),
                       decoration: WG2.inputLabel('請輸入Email信件裡面的認証碼'),
                     ),
-                    WG2.tailBtn('回復用戶帳號', () => onRecoverAsync()),
+                    WG2.tailBtn('回復用戶帳號', () => onRecoverA()),
                   ]),
           ],
         ),

@@ -27,7 +27,7 @@ class _StageBatchState extends State<StageBatch> {
     _dirImage = Xp.dirStageImage(_baoId);
 
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildAsync());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
   /*
@@ -36,7 +36,7 @@ class _StageBatchState extends State<StageBatch> {
   }
   */
 
-  Future rebuildAsync() async {
+  Future rebuildA() async {
     /*
     //download images if need
     var dirBao = Directory(imageDir());
@@ -130,7 +130,7 @@ class _StageBatchState extends State<StageBatch> {
   */
 
   //onclick submit
-  Future onSubmitAsync() async {
+  Future onSubmitA() async {
     var reply = replyCtrl.text;
     if (StrUt.isEmpty(reply)) {
       ToolUt.msg(context, '不可空白。');
@@ -157,7 +157,7 @@ class _StageBatchState extends State<StageBatch> {
 
     return Scaffold(
       appBar: WG2.appBar('解謎: ${widget.name}'),
-      body: Xp.getStageBody(_dirImage, 0, replyCtrl, onSubmitAsync),
+      body: Xp.getStageBody(_dirImage, 0, replyCtrl, onSubmitA),
     );
   }
 } //class

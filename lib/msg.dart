@@ -18,15 +18,15 @@ class _MsgState extends State<Msg> {
   @override
   void initState() {
     //set first, coz function parameter !!
-    _pagerSrv = PagerSrv(rebuildAsync);
+    _pagerSrv = PagerSrv(rebuildA);
 
     //call before reload()
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildAsync());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
   /// reload page
-  Future rebuildAsync() async {
+  Future rebuildA() async {
     if (!await Xp.isRegA(context)) return;
 
     //get rows, check & set total rows
