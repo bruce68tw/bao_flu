@@ -60,14 +60,14 @@ class _MyBaoState extends State<MyBao> {
               '已答對',
               () => ToolUt.openForm(context,
                   StageStep(id: row.id, name: row.name, editable: false)))
-          : WG2.textBtn('解題', () => onAnswer(row.isBatch, row.id, row.name)));
+          : WG2.textBtn('解題', () => onAnswer(row.answerType, row.id, row.name)));
     }
     return widgets;
   }
 
   //onclick answer
-  void onAnswer(bool isBatch, String baoId, String baoName) {
-    Xp.openStage(context, isBatch, baoId, baoName);
+  void onAnswer(String answerType, String baoId, String baoName) {
+    Xp.openStage(context, answerType, baoId, baoName);
   }
 
   @override

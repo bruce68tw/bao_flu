@@ -1,14 +1,14 @@
 class BaoRowDto {
   bool isMove;
-  bool isBatch;
-  bool isMoney;
+  String answerType;
+  String prizeType;
   String id;
   String name;
   String corp;
   String startTime;
 
-  BaoRowDto({required this.isMove, required this.isBatch,
-    required this.isMoney,
+  BaoRowDto({required this.isMove, required this.answerType,
+    required this.prizeType,
     required this.id, required this.name,
     required this.corp, required this.startTime
     });
@@ -17,8 +17,8 @@ class BaoRowDto {
   static BaoRowDto fromJson(Map<String, dynamic> json){
     return BaoRowDto(
       isMove : (json['IsMove'] == 1),
-      isBatch : (json['IsBatch'] == 1),
-      isMoney : (json['IsMoney'] == 1),
+      answerType : json['answerType'],
+      prizeType : json['prizeType'],
       id : json['Id'],
       name : json['Name'],
       corp : json['Corp'],

@@ -60,7 +60,7 @@ class _StageStepState extends State<StageStep> {
     */
 
     _stageIndex = widget.editable
-        ? await Xp.downStageImage(context, _baoId, false, _dirImage)
+        ? await Xp.downStageImage(context, _baoId, 'S', _dirImage)
         : -1;
     setState(() => _isOk = true);
   }

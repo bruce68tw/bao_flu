@@ -15,7 +15,7 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.6:5001';
+  static const apiServer = '192.168.43.127:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -121,12 +121,14 @@ class Xp {
 
   ///open stage form
   static openStage(
-      BuildContext context, bool isBatch, String baoId, String baoName) {
-    if (isBatch) {
+      BuildContext context, String answerType, String baoId, String baoName) {
+    if (answerType == 'B') {  //batch
       ToolUt.openForm(context, StageBatch(id: baoId, name: baoName));
-    } else {
-      ToolUt.openForm(
-          context, StageStep(id: baoId, name: baoName, editable: true));
+    } else if(answerType == 'S') {  //step
+      ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
+    } else if(answerType == 'A') {  //any
+      //todo
+      //ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
     }
   }
 
@@ -180,7 +182,7 @@ class Xp {
       var row = rows[i];
       widgets.add(ListTile(
         title: Row(children: [
-          row.isMoney
+          Xp.baoHasMoney(row.prizeType)
               ? const Icon(Icons.paid, color: Colors.amber)
               : const Icon(Icons.redeem, color: Colors.blue),
           row.isMove
@@ -201,6 +203,10 @@ class Xp {
     return '${FunUt.dirApp}image/cmsCard';
   }
 
+  static bool baoHasMoney(String prizeType) {
+    return (prizeType == 'M' || prizeType == 'MG');
+  }
+
   /// get directory of stage image
   static String dirStageImage(String baoId) {
     return '${FunUt.dirApp}image/stage/$baoId';
@@ -209,12 +215,13 @@ class Xp {
   /// download stage image
   /// return file index(base 1) if not batch
   static Future<int> downStageImage(
-      BuildContext context, String baoId, bool isBatch, String dirImage) async {
+      BuildContext context, String baoId, String answerType, String dirImage) async {
     //create folder if need
     var dir = Directory(dirImage);
     //TODO: temp add for remove cached image files
     //dir.deleteSync(recursive: true);
 
+    bool isBatch = (answerType == 'B');
     if (isBatch) {
       if (dir.existsSync() && dir.listSync().isNotEmpty) return 0;
     }

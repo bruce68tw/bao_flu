@@ -67,7 +67,7 @@ class _StageBatchState extends State<StageBatch> {
       }
     }
     */
-    await Xp.downStageImage(context, _baoId, true, _dirImage);
+    await Xp.downStageImage(context, _baoId, 'B', _dirImage);
     _isOk = true;
     setState(() {});
   }
