@@ -78,11 +78,11 @@ class _BaoState extends State<Bao> {
 
   //onOpen Stage
   void onStage(String answerType, String id, String name) {
-    if (answerType == 'B') {  //batch
+    if (answerType == AnswerTypeEstr.Batch) {
       ToolUt.openForm(context, StageBatch(id: id, name: name));
-    } else if (answerType == 'S') { //step
+    } else if (answerType == AnswerTypeEstr.Step) {
       ToolUt.openForm(context, StageStep(id: id, name: name, editable: true));
-    } else if (answerType == 'A') { //any
+    } else if (answerType == AnswerTypeEstr.AnyStep) {
       //todo
       //ToolUt.openForm(context, StageStep(id: id, name: name, editable: true));
     }
@@ -98,8 +98,8 @@ class _BaoState extends State<Bao> {
       widgets.add((status == null)
           ? WG2.textBtn('看明細', () => onDetail(row.id))
           : (status == AttendEstr.run)
-              ? WG2.textBtn('已參加', () => onStage(row.answerType, row.id, row.name),
-                  Colors.green)
+              ? WG2.textBtn('已參加',
+                  () => onStage(row.answerType, row.id, row.name), Colors.green)
               : (status == AttendEstr.finish)
                   ? WG2.textBtn('已答對', () => onDetail(row.id))
                   : WG2.textBtn(

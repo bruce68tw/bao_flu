@@ -3,6 +3,7 @@ import 'package:path/path.dart' as path; //or will conflict
 //import 'package:archive/archive.dart';
 import 'dart:io';
 import 'package:base_flu/all.dart';
+import '../enums/all.dart';
 import '../models/bao_row_dto.dart';
 import '../stage_batch.dart';
 import '../stage_step.dart';
@@ -15,7 +16,7 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.127:5001';
+  static const apiServer = '192.168.43.6:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -122,11 +123,15 @@ class Xp {
   ///open stage form
   static openStage(
       BuildContext context, String answerType, String baoId, String baoName) {
-    if (answerType == 'B') {  //batch
+    if (answerType == 'B') {
+      //batch
       ToolUt.openForm(context, StageBatch(id: baoId, name: baoName));
-    } else if(answerType == 'S') {  //step
-      ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
-    } else if(answerType == 'A') {  //any
+    } else if (answerType == 'S') {
+      //step
+      ToolUt.openForm(
+          context, StageStep(id: baoId, name: baoName, editable: true));
+    } else if (answerType == 'A') {
+      //any
       //todo
       //ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
     }
@@ -184,7 +189,10 @@ class Xp {
         title: Row(children: [
           Xp.baoHasMoney(row.prizeType)
               ? const Icon(Icons.paid, color: Colors.amber)
-              : const Icon(Icons.redeem, color: Colors.blue),
+              : const Text(''),
+          Xp.baoHasGift(row.prizeType)
+              ? const Icon(Icons.redeem, color: Colors.blue)
+              : const Text(''),
           row.isMove
               ? const Icon(Icons.directions_run, color: Colors.red)
               : const Text(''),
@@ -204,7 +212,18 @@ class Xp {
   }
 
   static bool baoHasMoney(String prizeType) {
-    return (prizeType == 'M' || prizeType == 'MG');
+    return (prizeType == PrizeTypeEstr.Money ||
+        prizeType == PrizeTypeEstr.MoneyGift);
+  }
+
+  static bool baoHasGift(String prizeType) {
+    return (prizeType == PrizeTypeEstr.Gift ||
+        prizeType == PrizeTypeEstr.MoneyGift);
+  }
+
+  static bool baoAnswerStages(String answerType) {
+    return (answerType == AnswerTypeEstr.Batch ||
+        answerType == AnswerTypeEstr.AnyStep);
   }
 
   /// get directory of stage image
@@ -214,20 +233,21 @@ class Xp {
 
   /// download stage image
   /// return file index(base 1) if not batch
-  static Future<int> downStageImage(
-      BuildContext context, String baoId, String answerType, String dirImage) async {
+  static Future<int> downStageImage(BuildContext context, String baoId,
+      String answerType, String dirImage) async {
     //create folder if need
     var dir = Directory(dirImage);
     //TODO: temp add for remove cached image files
     //dir.deleteSync(recursive: true);
 
-    bool isBatch = (answerType == 'B');
-    if (isBatch) {
+    //是否可同時回答多個謎題
+    bool answerStages = Xp.baoAnswerStages(answerType);
+    if (answerStages) {
       if (dir.existsSync() && dir.listSync().isNotEmpty) return 0;
     }
 
     //download it
-    var action = isBatch ? 'Stage/GetBatchImage' : 'Stage/GetStepImage';
+    var action = answerStages ? 'Stage/GetBatchImage' : 'Stage/GetStepImage';
     await HttpUt.saveUnzipA(context, action, {'id': baoId}, dirImage);
     return 1;
   }
