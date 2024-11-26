@@ -76,13 +76,13 @@ class _BaoState extends State<Bao> {
     ToolUt.openForm(context, BaoDetail(id: id));
   }
 
-  //onOpen Stage
-  void onStage(String answerType, String id, String name) {
-    if (answerType == AnswerTypeEstr.Batch) {
-      ToolUt.openForm(context, StageBatch(id: id, name: name));
-    } else if (answerType == AnswerTypeEstr.Step) {
-      ToolUt.openForm(context, StageStep(id: id, name: name, editable: true));
-    } else if (answerType == AnswerTypeEstr.AnyStep) {
+  //onOpen Stage, 開始尋寶關卡
+  void onStage(String baoId, String baoName, String answerType) {
+    if (answerType == AnswerTypeEstr.batch) {
+      ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
+    } else if (answerType == AnswerTypeEstr.step) {
+      ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
+    } else if (answerType == AnswerTypeEstr.anyStep) {
       //todo
       //ToolUt.openForm(context, StageStep(id: id, name: name, editable: true));
     }
@@ -99,12 +99,12 @@ class _BaoState extends State<Bao> {
           ? WG2.textBtn('看明細', () => onDetail(row.id))
           : (status == AttendEstr.run)
               ? WG2.textBtn('已參加',
-                  () => onStage(row.answerType, row.id, row.name), Colors.green)
+                  () => onStage(row.id, row.name, row.answerType), Colors.green)
               : (status == AttendEstr.finish)
                   ? WG2.textBtn('已答對', () => onDetail(row.id))
                   : WG2.textBtn(
                       '已取消',
-                      () => onStage(row.answerType, row.id, row.name),
+                      () => onStage(row.id, row.name, row.answerType),
                       Colors.red));
     }
 

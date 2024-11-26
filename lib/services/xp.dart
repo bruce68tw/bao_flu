@@ -125,7 +125,7 @@ class Xp {
       BuildContext context, String answerType, String baoId, String baoName) {
     if (answerType == 'B') {
       //batch
-      ToolUt.openForm(context, StageBatch(id: baoId, name: baoName));
+      ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
     } else if (answerType == 'S') {
       //step
       ToolUt.openForm(
@@ -212,18 +212,19 @@ class Xp {
   }
 
   static bool baoHasMoney(String prizeType) {
-    return (prizeType == PrizeTypeEstr.Money ||
-        prizeType == PrizeTypeEstr.MoneyGift);
+    return (prizeType == PrizeTypeEstr.money ||
+        prizeType == PrizeTypeEstr.moneyGift);
   }
 
   static bool baoHasGift(String prizeType) {
-    return (prizeType == PrizeTypeEstr.Gift ||
-        prizeType == PrizeTypeEstr.MoneyGift);
+    return (prizeType == PrizeTypeEstr.gift ||
+        prizeType == PrizeTypeEstr.moneyGift);
   }
 
+  //答題時顯示全部關卡
   static bool baoAnswerStages(String answerType) {
-    return (answerType == AnswerTypeEstr.Batch ||
-        answerType == AnswerTypeEstr.AnyStep);
+    return (answerType == AnswerTypeEstr.batch ||
+        answerType == AnswerTypeEstr.anyStep);
   }
 
   /// get directory of stage image
@@ -253,27 +254,44 @@ class Xp {
   }
 
   //get body widget for stageStep/stageBatch
+  //for Step(下一關)、Batch(全部)、AnyStep(全部)
   //param stageIndex: 0(batch),n(step),-1(step read only)
-  static Widget getStageBody(String dirBao, int stageIndex,
-      TextEditingController ctrl, Function fnOnSubmit) {
+  static Widget getStageBody(BuildContext context, String baoId, String dirImage, String answerType, int stageIndex,
+      TextEditingController ctrl  /*, Function fnOnSubmit*/) {
     //set widgets & return
     //var isBatch = (stageIndex == 0);
-    var isStep = (stageIndex > 0);
-    var readOnly = (stageIndex == -1);
-    var dir = Directory(dirBao);
+    //var isStep = (stageIndex > 0);
+    //var readOnly = (stageIndex == -1);
+    var dir = Directory(dirImage);
     var files = dir.listSync().toList();
     if (files.isEmpty) return emptyMsg();
 
-    //sorting
+    var isBatch = (answerType == AnswerTypeEstr.batch);
+    var isStep = (answerType == AnswerTypeEstr.step);
+    var isAnyStep = (answerType == AnswerTypeEstr.anyStep);
+
+    /*
+    var btnText = isBatch ? '送出全部解答' : 
+      isStep ? '送出解答' : 
+      isAnyStep ? '送出' : '';
+    */
+
+    //sorting files
+    var stageLen = files.length;
     files.sort((a, b) => a.path.compareTo(b.path));
+
+    final replyCtrl = TextEditingController();
 
     var widgets = <Widget>[];
     for (var file in files) {
+      //圖檔名稱(底線分隔): Sort+1,StageId,Hint
       var cols = path.basename(file.path).split('_');
       var index = int.parse(cols[0]);
       if (isStep && stageIndex != index) continue;
 
+      //謎題圖片上方文字:關卡/謎題, 提示
       //var no = int.parse(cols[0]);
+      var stageId = cols[1];
       var text = '第${cols[0]}關';
       if (cols.length > 3) {
         text += ', 提示：${cols[2]}';
@@ -285,6 +303,7 @@ class Xp {
         padding: const EdgeInsets.only(top: 10, bottom: 10, left: 5),
         child: WG.getText(text),
       ));
+
       //add image
       widgets.add(InteractiveViewer(
         panEnabled: true,
@@ -293,48 +312,81 @@ class Xp {
         maxScale: 8,
         child: Image.file(file as File),
       ));
-      widgets.add(const Divider());
-    }
+      
+      //add text input & button
+      if (isBatch || isAnyStep){
+        widgets.add(TextField(
+          controller: ctrl,
+          maxLines: 1,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: InputDecoration(
+            counterText: ctrl.text,
+            labelText: '(請輸入解答)',
+            //hintText: 'type something...',
+            border: const OutlineInputBorder(),
+          ),
+          //onChanged: (text) => setState(() {}),
+        ));
 
-    if (!readOnly) {
-      String label;
-      int lines;
-      if (isStep) {
-        label = '(請輸入這個關卡的答案，不含標點符號)';
-        lines = 1;
-      } else {
-        label = '(每行一個答案，不含標點符號)';
-        lines = files.length;
+        var btn = ElevatedButton(
+            child: const Text('送出解答', style: TextStyle(fontSize: 15)),
+            onPressed: () => Xp.onReplyOneA(context, baoId, stageId, ctrl),
+          );
+
+        //add submit button if need
+        widgets.add(Container(
+          alignment: Alignment.center,
+          margin: const EdgeInsets.all(20),
+          child: btn,
+        ));
       }
 
-      //add input
-      widgets.add(TextField(
-        controller: ctrl,
-        maxLines: lines,
-        textCapitalization: TextCapitalization.sentences,
-        decoration: InputDecoration(
-          counterText: ctrl.text,
-          labelText: label,
-          //hintText: 'type something...',
-          border: const OutlineInputBorder(),
-        ),
-        //onChanged: (text) => setState(() {}),
-      ));
+      //分隔線
+      widgets.add(const Divider());
+    } //for
 
-      //add submit button
+    //todo
+    /*
+    if (isBatch){
+      //add submit button if need
       widgets.add(Container(
         alignment: Alignment.center,
         margin: const EdgeInsets.all(20),
         child: ElevatedButton(
-          child: const Text('送出解答', style: TextStyle(fontSize: 15)),
+          child: const Text('送出全部解答', style: TextStyle(fontSize: 15)),
           onPressed: () => fnOnSubmit(),
         ),
       ));
     }
+    */
 
     return ListView(
       padding: WG.gap(10),
       children: widgets,
     );
   }
+
+  //onclick 傳送一題解答
+  static Future onReplyOneA(BuildContext context, String baoId, String stageId, 
+      TextEditingController ctrl  /*, ElevatedButton btn*/) async {
+    var reply = ctrl.text;
+    if (StrUt.isEmpty(reply)) {
+      ToolUt.msg(context, '不可空白。');
+      return;
+    }
+
+    //0(fail),1(ok),-1(lock)
+    var data = {'baoId': baoId, 'stageId': stageId, 'reply': reply};
+    await HttpUt.getStrA(context, 'Stage/ReplyOne', false, data, (result) {
+      if (result == '1') {
+        //Xp.setAttendStatus(_baoId, AttendEstr.finish);
+        ToolUt.msg(context, '恭喜答對了!');
+      } else if (result == '0'){
+        ToolUt.msg(context, '哦哦，你猜錯了!');
+      } else if (result == '-1'){
+        ToolUt.msg(context, '答錯超過次數，本題無法再答!');
+      }
+    });
+  }
+
 } //class

@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
 
+// 用在 Batch、AnyStep 解答方式
 class StageBatch extends StatefulWidget {
-  const StageBatch({super.key, required this.id, required this.name});
+  const StageBatch({super.key, required this.baoId, required this.baoName, required this.answerType});
 
   //input parameter
-  final String id; //Bao.Id
-  final String name; //Bao.Name
+  final String baoId; //Bao.Id
+  final String baoName; //Bao.Name
+  final String answerType; //Bao.AnswerType
 
   @override
   _StageBatchState createState() => _StageBatchState();
@@ -23,7 +25,7 @@ class _StageBatchState extends State<StageBatch> {
 
   @override
   void initState() {
-    _baoId = widget.id;
+    _baoId = widget.baoId;
     _dirImage = Xp.dirStageImage(_baoId);
 
     super.initState();
@@ -67,7 +69,7 @@ class _StageBatchState extends State<StageBatch> {
       }
     }
     */
-    await Xp.downStageImage(context, _baoId, 'B', _dirImage);
+    await Xp.downStageImage(context, _baoId, AnswerTypeEstr.batch, _dirImage);
     _isOk = true;
     setState(() {});
   }
@@ -129,6 +131,7 @@ class _StageBatchState extends State<StageBatch> {
   }
   */
 
+  /* //todo
   //onclick submit
   Future onSubmitA() async {
     var reply = replyCtrl.text;
@@ -141,7 +144,7 @@ class _StageBatchState extends State<StageBatch> {
 
     //0(fail),1(ok)
     var data = {'id': _baoId, 'reply': reply};
-    await HttpUt.getStrA(context, 'Stage/ReplyBatch', false, data, (result) {
+    await HttpUt.getStrA(context, 'Stage/ReplyAll', false, data, (result) {
       if (result == '1') {
         Xp.setAttendStatus(_baoId, AttendEstr.finish);
         ToolUt.msg(context, '恭喜答對了!');
@@ -150,14 +153,15 @@ class _StageBatchState extends State<StageBatch> {
       }
     });
   }
+  */
 
   @override
   Widget build(BuildContext context) {
     if (!_isOk) return Container();
 
     return Scaffold(
-      appBar: WG2.appBar('解謎: ${widget.name}'),
-      body: Xp.getStageBody(_dirImage, 0, replyCtrl, onSubmitA),
+      appBar: WG2.appBar('解謎: ${widget.baoName}'),
+      body: Xp.getStageBody(context, _baoId, _dirImage, AnswerTypeEstr.batch, 0, replyCtrl),
     );
   }
 } //class

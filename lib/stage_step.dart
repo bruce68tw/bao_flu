@@ -65,33 +65,13 @@ class _StageStepState extends State<StageStep> {
     setState(() => _isOk = true);
   }
 
-  //onclick submit
-  Future<void> onSubmitA() async {
-    var reply = replyCtrl.text;
-    if (StrUt.isEmpty(reply)) {
-      ToolUt.msg(context, '不可空白。');
-      return;
-    }
-
-    //0(fail),1(ok)
-    var data = {'id': _baoId, 'reply': reply};
-    await HttpUt.getStrA(context, 'Stage/ReplyStep', false, data, (result) {
-      if (result == '1') {
-        Xp.setAttendStatus(_baoId, AttendEstr.finish);
-        ToolUt.msg(context, '恭喜答對了!');
-      } else {
-        ToolUt.msg(context, '哦哦，你猜錯了!');
-      }
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     if (!_isOk) return Container();
 
     return Scaffold(
       appBar: WG2.appBar('解謎: ${widget.name}'),
-      body: Xp.getStageBody(_dirImage, _stageIndex, replyCtrl, onSubmitA),
+      body: Xp.getStageBody(context, _baoId, _dirImage, AnswerTypeEstr.step, _stageIndex, replyCtrl),
     );
   }
 } //class
