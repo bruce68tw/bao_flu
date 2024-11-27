@@ -126,7 +126,8 @@ class Xp {
       BuildContext context, String answerType, String baoId, String baoName) {
     if (answerType == AnswerTypeEstr.batch) {
       //batch
-      ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
+      ToolUt.openForm(context,
+          StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
     } else if (answerType == AnswerTypeEstr.step) {
       //step
       ToolUt.openForm(
@@ -233,31 +234,36 @@ class Xp {
   }
 
   /// download stage image
+  /// param allImage: 是否下載多個關卡的圖檔
   /// return file index(base 1) if not batch
   static Future<int> downStageImage(BuildContext context, String baoId,
-      String answerType, String dirImage) async {
+      bool allImage, String dirImage) async {
     //create folder if need
     var dir = Directory(dirImage);
     //TODO: temp add for remove cached image files
     //dir.deleteSync(recursive: true);
 
     //是否可同時回答多個謎題
-    bool answerStages = Xp.baoAnswerStages(answerType);
-    if (answerStages) {
+    if (allImage) {
       if (dir.existsSync() && dir.listSync().isNotEmpty) return 0;
     }
 
-    //download it
-    var action = answerStages ? 'Stage/GetBatchImage' : 'Stage/GetStepImage';
-    await HttpUt.saveUnzipA(context, action, {'id': baoId}, dirImage);
+    //download and unzip
+    var action = allImage ? 'Stage/GetBatchImage' : 'Stage/GetStepImage';
+    await HttpUt.saveUnzipA(context, action, {'baoId': baoId}, dirImage);
     return 1;
   }
 
   //get body widget for stageStep/stageBatch
-  //for Step(下一關)、Batch(全部)、AnyStep(全部)
+  //for Step(下一關)、Batch(全部)
   //param stageIndex: 0(batch),n(step),-1(step read only)
-  static Widget getStageBody(BuildContext context, String baoId, String dirImage, String answerType, int stageIndex,
-      TextEditingController ctrl  /*, Function fnOnSubmit*/) {
+  static Widget getStageBody(
+      BuildContext context,
+      String baoId,
+      String dirImage,
+      String answerType,
+      int stageIndex,
+      TextEditingController ctrl /*, Function fnOnSubmit*/) {
     //set widgets & return
     //var isBatch = (stageIndex == 0);
     //var isStep = (stageIndex > 0);
@@ -312,9 +318,9 @@ class Xp {
         maxScale: 8,
         child: Image.file(file as File),
       ));
-      
+
       //add text input & button
-      if (isBatch || isAnyStep){
+      if (isBatch || isAnyStep) {
         widgets.add(TextField(
           controller: ctrl,
           maxLines: 1,
@@ -329,9 +335,9 @@ class Xp {
         ));
 
         var btn = ElevatedButton(
-            child: const Text('送出解答', style: TextStyle(fontSize: 15)),
-            onPressed: () => Xp.onReplyOneA(context, baoId, stageId, ctrl),
-          );
+          child: const Text('送出解答', style: TextStyle(fontSize: 15)),
+          onPressed: () => Xp.onReplyOneA(context, baoId, stageId, ctrl),
+        );
 
         //add submit button if need
         widgets.add(Container(
@@ -367,8 +373,8 @@ class Xp {
   }
 
   //onclick 傳送一題解答
-  static Future onReplyOneA(BuildContext context, String baoId, String stageId, 
-      TextEditingController ctrl  /*, ElevatedButton btn*/) async {
+  static Future onReplyOneA(BuildContext context, String baoId, String stageId,
+      TextEditingController ctrl /*, ElevatedButton btn*/) async {
     var reply = ctrl.text;
     if (StrUt.isEmpty(reply)) {
       ToolUt.msg(context, '不可空白。');
@@ -381,12 +387,11 @@ class Xp {
       if (result == '1') {
         //Xp.setAttendStatus(_baoId, AttendEstr.finish);
         ToolUt.msg(context, '恭喜答對了!');
-      } else if (result == '0'){
+      } else if (result == '0') {
         ToolUt.msg(context, '哦哦，你猜錯了!');
-      } else if (result == '-1'){
+      } else if (result == '-1') {
         ToolUt.msg(context, '答錯超過次數，本題無法再答!');
       }
     });
   }
-
 } //class

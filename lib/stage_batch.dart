@@ -4,7 +4,11 @@ import 'all.dart';
 
 // 用在 Batch、AnyStep 解答方式
 class StageBatch extends StatefulWidget {
-  const StageBatch({super.key, required this.baoId, required this.baoName, required this.answerType});
+  const StageBatch(
+      {super.key,
+      required this.baoId,
+      required this.baoName,
+      required this.answerType});
 
   //input parameter
   final String baoId; //Bao.Id
@@ -69,7 +73,7 @@ class _StageBatchState extends State<StageBatch> {
       }
     }
     */
-    await Xp.downStageImage(context, _baoId, AnswerTypeEstr.batch, _dirImage);
+    await Xp.downStageImage(context, _baoId, true, _dirImage);
     _isOk = true;
     setState(() {});
   }
@@ -143,7 +147,7 @@ class _StageBatchState extends State<StageBatch> {
     //ToolUt.openWait(context);
 
     //0(fail),1(ok)
-    var data = {'id': _baoId, 'reply': reply};
+    var data = {'baoId': _baoId, 'reply': reply};
     await HttpUt.getStrA(context, 'Stage/ReplyAll', false, data, (result) {
       if (result == '1') {
         Xp.setAttendStatus(_baoId, AttendEstr.finish);
@@ -161,7 +165,8 @@ class _StageBatchState extends State<StageBatch> {
 
     return Scaffold(
       appBar: WG2.appBar('解謎: ${widget.baoName}'),
-      body: Xp.getStageBody(context, _baoId, _dirImage, AnswerTypeEstr.batch, 0, replyCtrl),
+      body: Xp.getStageBody(
+          context, _baoId, _dirImage, AnswerTypeEstr.batch, 0, replyCtrl),
     );
   }
 } //class

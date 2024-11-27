@@ -18,20 +18,20 @@ class _MyBaoState extends State<MyBao> {
   @override
   void initState() {
     //set first, coz function parameter !!
-    _pagerSrv = PagerSrv(showA);
-    
+    _pagerSrv = PagerSrv(rebuildA);
+
     //call before reload()
     super.initState();
-    Future.delayed(Duration.zero, () => showA());
+    Future.delayed(Duration.zero, () => rebuildA());
   }
 
   //reload page
-  Future showA() async {
+  Future rebuildA() async {
     if (!await Xp.isRegA(context)) return;
 
     //get rows & check
-    await HttpUt.getJsonA(context, 'MyBao/GetPage', true, _pagerSrv.getDtJson2(),
-        (json) {
+    await HttpUt.getJsonA(
+        context, 'MyBao/GetPage', true, _pagerSrv.getDtJson2(), (json) {
       if (json == null) return;
 
       _pagerDto = PagerDto<BaoRowDto>.fromJson(json, BaoRowDto.fromJson);
@@ -60,7 +60,8 @@ class _MyBaoState extends State<MyBao> {
               '已答對',
               () => ToolUt.openForm(context,
                   StageStep(baoId: row.id, baoName: row.name, editable: false)))
-          : WG2.textBtn('解題', () => onAnswer(row.answerType, row.id, row.name)));
+          : WG2.textBtn(
+              '解題', () => onAnswer(row.answerType, row.id, row.name)));
     }
     return widgets;
   }
