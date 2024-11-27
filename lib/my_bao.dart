@@ -59,7 +59,7 @@ class _MyBaoState extends State<MyBao> {
           ? WG2.textBtn(
               '已答對',
               () => ToolUt.openForm(context,
-                  StageStep(id: row.id, name: row.name, editable: false)))
+                  StageStep(baoId: row.id, baoName: row.name, editable: false)))
           : WG2.textBtn('解題', () => onAnswer(row.answerType, row.id, row.name)));
     }
     return widgets;

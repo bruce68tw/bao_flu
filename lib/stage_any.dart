@@ -23,7 +23,9 @@ class _StageAnyState extends State<StageAny> {
   //int _stageCount = 0;
   late String _baoId;
   late String _dirImage;
-  final replyCtrl = TextEditingController();
+  //List<Map<String, dynamic>> _stageRows = [];
+  List<dynamic> _stageRows = [];
+  //final replyCtrl = TextEditingController();
 
   @override
   void initState() {
@@ -36,123 +38,89 @@ class _StageAnyState extends State<StageAny> {
 
   Future rebuildA() async {
     await Xp.downStageImage(context, _baoId, AnswerTypeEstr.batch, _dirImage);
-    _isOk = true;
-    setState(() {});
-  }
 
-  /* //todo
-  //onclick submit
-  Future onSubmitA() async {
-    var reply = replyCtrl.text;
-    if (StrUt.isEmpty(reply)) {
-      ToolUt.msg(context, '不可空白。');
-      return;
-    }
-
-    //ToolUt.openWait(context);
-
-    //0(fail),1(ok)
-    var data = {'id': _baoId, 'reply': reply};
-    await HttpUt.getStrA(context, 'Stage/ReplyAll', false, data, (result) {
-      if (result == '1') {
-        Xp.setAttendStatus(_baoId, AttendEstr.finish);
-        ToolUt.msg(context, '恭喜答對了!');
-      } else {
-        ToolUt.msg(context, '哦哦，你猜錯了!');
-      }
+    //讀取全部關卡資料
+    await HttpUt.getJsonA(context, 'Stage/GetRows', false, {'baoId': _baoId},
+        (rows) {
+      _stageRows = rows;
+      _isOk = true;
+      setState(() {});
     });
-  }
-  */
-
-  static List<Widget> baosToWidgets(List<BaoRowDto> rows, List<Widget> trails) {
-    var widgets = <Widget>[];
-    if (rows.isEmpty) return widgets;
-
-    for (int i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      widgets.add(ListTile(
-        title: Row(children: [
-          Xp.baoHasMoney(row.prizeType)
-              ? const Icon(Icons.paid, color: Colors.amber)
-              : const Text(''),
-          Xp.baoHasGift(row.prizeType)
-              ? const Icon(Icons.redeem, color: Colors.blue)
-              : const Text(''),
-          row.isMove
-              ? const Icon(Icons.directions_run, color: Colors.red)
-              : const Text(''),
-          Text(row.name),
-        ]),
-        subtitle: Text('by: ${row.corp}\n${DateUt.format2(row.startTime)} 開始'),
-        trailing: trails[i],
-      ));
-      widgets.add(WG2.divider());
-    }
-
-    return widgets;
   }
 
   //get body widget for stageStep/stageBatch
   //for Step(下一關)、Batch(全部)、AnyStep(全部)
   //param stageIndex: 0(batch),n(step),-1(step read only)
-  static Widget getBody(
-      BuildContext context,
-      String baoId,
-      String dirImage,
-      String answerType,
-      int stageIndex,
-      TextEditingController ctrl /*, Function fnOnSubmit*/) {
-    var dir = Directory(dirImage);
-    var files = dir.listSync().toList();
-    if (files.isEmpty) return emptyMsg();
+  Widget getBody(
+      BuildContext context) {
 
-    //sorting files
-    var stageLen = files.length;
+    var dir = Directory(_dirImage);
+    var files = dir.listSync().toList();
+    if (files.isEmpty) return Xp.emptyMsg();
+
+    //sorting files, 檔案數與 _stageRows 筆數相同
+    var fileLen = files.length;
     files.sort((a, b) => a.path.compareTo(b.path));
 
-    final replyCtrl = TextEditingController();
+    //final replyCtrl = TextEditingController();
 
     var widgets = <Widget>[];
-    for (var file in files) {
+    //for (var file in files) {
+    for (var i=0; i<fileLen; i++) {
       //圖檔名稱(底線分隔): Sort+1,StageId,Hint
+      var file = files[i];
+      var row = _stageRows[i];
       var cols = path.basename(file.path).split('_');
-      var index = int.parse(cols[0]);
+      //var index = int.parse(cols[0]);
       //if (isStep && stageIndex != index) continue;
 
       //謎題圖片上方文字:關卡/謎題, 提示
       //var no = int.parse(cols[0]);
       var stageId = cols[1];
-      var text = '第${cols[0]}關';
-      if (cols.length > 3) {
-        text += ', 提示：${cols[2]}';
+      var title = '謎題${cols[0]}';
+      var stageName = row['Name'].toString();
+      if (StrUt.notEmpty(stageName)){
+        title += '：$stageName';
       }
 
       //tail button
-      ? WG2.textBtn('看明細', () => onDetail(row.id))
-          : (status == AttendEstr.run)
-              ? WG2.textBtn('已參加',
-                  () => onStage(row.id, row.name, row.answerType), Colors.green)
-              : (status == AttendEstr.finish)
-                  ? WG2.textBtn('已答對', () => onDetail(row.id))
-                  : WG2.textBtn(
-                      '已取消',
-                      () => onStage(row.id, row.name, row.answerType),
-                      Colors.red)
+      var tail = WG2.textBtn('解答',
+        () => {});
+
+      //答題狀態
+      var isNormal = false;
+      var answerStatus = JsonUt.emptyToStr(row, 'AnswerStatus', AnswerStatusEstr.normal);
+      Text ansStatus; 
+      if (answerStatus == AnswerStatusEstr.finish){
+        ansStatus = WG.getGreenText('答對了!!');
+      } else if (answerStatus == AnswerStatusEstr.lock){
+        ansStatus = WG.getRedText('錯誤太多，無法答題');
+      } else {
+        isNormal = true;
+        var errorCount = JsonUt.emptyToInt(row, 'ErrorCount', 0);
+        ansStatus = (errorCount > 0)
+          ? WG.getRedText('錯誤$errorCount次')
+          : const Text('未作答');
+      }
 
       widgets.add(ListTile(
-        title: Text(text),
-        subtitle: Text('提示: ${row.corp}\n${DateUt.format2(row.startTime)} 開始'),
-        //答題狀態
-        trailing: trails[i],
+        title: Text(title),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start, //向左對齊
+          children: [
+          Text(cols.length > 3 ? '提示：${cols[2]}' : '提示：'),
+          ansStatus,
+        ]),
+        trailing: isNormal ? tail : const Text(''),
       ));
 
       widgets.add(WG2.divider());
 
-      //widgets.add(ListTile(title: Text('(' + StrUt.addNum(no, 1) + ')')));
+      /*
       //add text
       widgets.add(Padding(
         padding: const EdgeInsets.only(top: 10, bottom: 10, left: 5),
-        child: WG.getText(text),
+        child: WG.getText(title),
       ));
 
       //add image
@@ -194,22 +162,8 @@ class _StageAnyState extends State<StageAny> {
 
       //分隔線
       widgets.add(const Divider());
+      */
     } //for
-
-    //todo
-    /*
-    if (isBatch){
-      //add submit button if need
-      widgets.add(Container(
-        alignment: Alignment.center,
-        margin: const EdgeInsets.all(20),
-        child: ElevatedButton(
-          child: const Text('送出全部解答', style: TextStyle(fontSize: 15)),
-          onPressed: () => fnOnSubmit(),
-        ),
-      ));
-    }
-    */
 
     return ListView(
       padding: WG.gap(10),
@@ -223,8 +177,7 @@ class _StageAnyState extends State<StageAny> {
 
     return Scaffold(
       appBar: WG2.appBar('解謎: ${widget.baoName}'),
-      body: Xp.getStageBody(
-          context, _baoId, _dirImage, AnswerTypeEstr.batch, 0, replyCtrl),
+      body: getBody(context),
     );
   }
 } //class

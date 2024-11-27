@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
 import 'bao_detail.dart';
+import 'stage_any.dart';
 import 'stage_batch.dart';
 import 'stage_step.dart';
 
@@ -81,10 +82,9 @@ class _BaoState extends State<Bao> {
     if (answerType == AnswerTypeEstr.batch) {
       ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
     } else if (answerType == AnswerTypeEstr.step) {
-      ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
+      ToolUt.openForm(context, StageStep(baoId: baoId, baoName: baoName, editable: true));
     } else if (answerType == AnswerTypeEstr.anyStep) {
-      //todo
-      //ToolUt.openForm(context, StageStep(id: id, name: name, editable: true));
+      ToolUt.openForm(context, StageAny(baoId: baoId, baoName: baoName));
     }
   }
 

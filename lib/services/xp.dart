@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:base_flu/all.dart';
 import '../enums/all.dart';
 import '../models/bao_row_dto.dart';
+import '../stage_any.dart';
 import '../stage_batch.dart';
 import '../stage_step.dart';
 import 'widget2.dart';
@@ -16,7 +17,7 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.6:5001';
+  static const apiServer = '192.168.43.127:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -123,17 +124,16 @@ class Xp {
   ///open stage form
   static openStage(
       BuildContext context, String answerType, String baoId, String baoName) {
-    if (answerType == 'B') {
+    if (answerType == AnswerTypeEstr.batch) {
       //batch
       ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
-    } else if (answerType == 'S') {
+    } else if (answerType == AnswerTypeEstr.step) {
       //step
       ToolUt.openForm(
-          context, StageStep(id: baoId, name: baoName, editable: true));
-    } else if (answerType == 'A') {
+          context, StageStep(baoId: baoId, baoName: baoName, editable: true));
+    } else if (answerType == AnswerTypeEstr.anyStep) {
       //any
-      //todo
-      //ToolUt.openForm(context, StageStep(id: baoId, name: baoName, editable: true));
+      ToolUt.openForm(context, StageAny(baoId: baoId, baoName: baoName));
     }
   }
 

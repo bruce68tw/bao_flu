@@ -6,13 +6,13 @@ import 'all.dart';
 class StageStep extends StatefulWidget {
   const StageStep(
       {super.key,
-      required this.id,
-      required this.name,
+      required this.baoId,
+      required this.baoName,
       required this.editable});
 
   //input parameter
-  final String id; //Bao.Id
-  final String name; //Bao.Name
+  final String baoId; //Bao.Id
+  final String baoName; //Bao.Name
   final bool editable; //editable or not
 
   @override
@@ -28,7 +28,7 @@ class _StageStepState extends State<StageStep> {
 
   @override
   void initState() {
-    _baoId = widget.id;
+    _baoId = widget.baoId;
     _dirImage = Xp.dirStageImage(_baoId);
 
     super.initState();
@@ -70,7 +70,7 @@ class _StageStepState extends State<StageStep> {
     if (!_isOk) return Container();
 
     return Scaffold(
-      appBar: WG2.appBar('解謎: ${widget.name}'),
+      appBar: WG2.appBar('解謎: ${widget.baoName}'),
       body: Xp.getStageBody(context, _baoId, _dirImage, AnswerTypeEstr.step, _stageIndex, replyCtrl),
     );
   }
