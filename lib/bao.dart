@@ -78,14 +78,23 @@ class _BaoState extends State<Bao> {
   }
 
   //onOpen Stage, 開始尋寶關卡
-  void onStage(String baoId, String baoName, String answerType) {
-    if (answerType == AnswerTypeEstr.batch) {
-      ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
-    } else if (answerType == AnswerTypeEstr.step) {
-      ToolUt.openForm(context, StageStep(baoId: baoId, baoName: baoName, editable: true));
-    } else if (answerType == AnswerTypeEstr.anyStep) {
+  Future onPlayGameA(String baoId, String baoName, String replyType) async {
+    await Xp.openStageA(context, baoId, baoName, replyType);
+    /*
+    if (replyType == ReplyTypeEstr.batch) {
+      ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));
+    } else if (replyType == ReplyTypeEstr.step) {
+      //讀取目前關卡資料
+      await HttpUt.getJsonA(context, 'Stage/GetNowStepRow', false, {'baoId': baoId},
+          (row) {
+        //開啟畫面
+        ToolUt.openForm(context, StageStep(baoId: baoId, baoName: baoName, stageId: row['Id'].toString(), replyType: replyType));
+      });
+
+    } else if (replyType == ReplyTypeEstr.anyStep) {
       ToolUt.openForm(context, StageAny(baoId: baoId, baoName: baoName));
     }
+    */
   }
 
   /// get trailings widget
@@ -99,12 +108,12 @@ class _BaoState extends State<Bao> {
           ? WG2.textBtn('看明細', () => onDetail(row.id))
           : (status == AttendEstr.run)
               ? WG2.textBtn('已參加',
-                  () => onStage(row.id, row.name, row.answerType), Colors.green)
+                  () => onPlayGameA(row.id, row.name, row.replyType), Colors.green)
               : (status == AttendEstr.finish)
                   ? WG2.textBtn('已答對', () => onDetail(row.id))
                   : WG2.textBtn(
                       '已取消',
-                      () => onStage(row.id, row.name, row.answerType),
+                      () => onPlayGameA(row.id, row.name, row.replyType),
                       Colors.red));
     }
 

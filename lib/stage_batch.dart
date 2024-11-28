@@ -8,12 +8,12 @@ class StageBatch extends StatefulWidget {
       {super.key,
       required this.baoId,
       required this.baoName,
-      required this.answerType});
+      required this.replyType});
 
   //input parameter
   final String baoId; //Bao.Id
   final String baoName; //Bao.Name
-  final String answerType; //Bao.AnswerType
+  final String replyType; //Bao.ReplyType
 
   @override
   _StageBatchState createState() => _StageBatchState();
@@ -73,9 +73,9 @@ class _StageBatchState extends State<StageBatch> {
       }
     }
     */
-    await Xp.downStageImage(context, _baoId, true, _dirImage);
-    _isOk = true;
-    setState(() {});
+    //stageId用不到, 傳入空白
+    await Xp.downStageImage(context, _baoId, "", ReplyTypeEstr.batch, _dirImage);    
+    setState(() => _isOk = true);
   }
 
   /*
@@ -166,7 +166,7 @@ class _StageBatchState extends State<StageBatch> {
     return Scaffold(
       appBar: WG2.appBar('解謎: ${widget.baoName}'),
       body: Xp.getStageBody(
-          context, _baoId, _dirImage, AnswerTypeEstr.batch, 0, replyCtrl),
+          context, _baoId, _dirImage, ReplyTypeEstr.batch, 0, replyCtrl),
     );
   }
 } //class

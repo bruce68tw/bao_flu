@@ -56,19 +56,15 @@ class _MyBaoState extends State<MyBao> {
       var row = rows[i];
       var status = Xp.getAttendStatus(row.id);
       widgets.add((status == AttendEstr.finish)
-          ? WG2.textBtn(
+          ? WG.getGreenText('已答對')
+            /*WG2.textBtn(
               '已答對',
               () => ToolUt.openForm(context,
-                  StageStep(baoId: row.id, baoName: row.name, editable: false)))
+                  StageStep(baoId: row.id, baoName: row.name, editable: false)))*/
           : WG2.textBtn(
-              '解題', () => onAnswer(row.answerType, row.id, row.name)));
+              '解題', () => Xp.openStageA(context, row.id, row.name, row.replyType)));
     }
     return widgets;
-  }
-
-  //onclick answer
-  void onAnswer(String answerType, String baoId, String baoName) {
-    Xp.openStage(context, answerType, baoId, baoName);
   }
 
   @override

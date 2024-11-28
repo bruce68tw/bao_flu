@@ -1,6 +1,6 @@
 class BaoRowDto {
   bool isMove;
-  String answerType;
+  String replyType;
   String prizeType;
   String id;
   String name;
@@ -9,7 +9,7 @@ class BaoRowDto {
 
   BaoRowDto(
       {required this.isMove,
-      required this.answerType,
+      required this.replyType,
       required this.prizeType,
       required this.id,
       required this.name,
@@ -20,7 +20,7 @@ class BaoRowDto {
   static BaoRowDto fromJson(Map<String, dynamic> json) {
     return BaoRowDto(
       isMove: (json['IsMove'] == 1),
-      answerType: json['AnswerType'],
+      replyType: json['ReplyType'],
       prizeType: json['PrizeType'],
       id: json['Id'],
       name: json['Name'],

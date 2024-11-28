@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'package:base_flu/all.dart';
 import 'package:flutter/material.dart';
 import 'package:path/path.dart' as path; //or will conflict
@@ -19,12 +18,14 @@ class StageAny extends StatefulWidget {
 class _StageAnyState extends State<StageAny> {
   bool _isOk = false; //status
   late String _baoId;
+  late String _baoName;
   //late String _dirImage;
   List<dynamic> _stageRows = [];
 
   @override
   void initState() {
     _baoId = widget.baoId;
+    _baoName = widget.baoName;
     //_dirImage = Xp.dirStageImage(_baoId);
 
     super.initState();
@@ -35,7 +36,7 @@ class _StageAnyState extends State<StageAny> {
     //await Xp.downStageImage(context, _baoId, true, _dirImage);
 
     //讀取全部關卡資料
-    await HttpUt.getJsonA(context, 'Stage/GetRows', false, {'baoId': _baoId},
+    await HttpUt.getJsonA(context, 'Stage/GetRowsForBatchAny', false, {'baoId': _baoId},
         (rows) {
       _stageRows = rows;
       _isOk = true;
@@ -73,22 +74,22 @@ class _StageAnyState extends State<StageAny> {
       }
 
       //tail button
-      var tail = WG2.textBtn('解答', () => {});
+      var tail = WG2.textBtn('解答', () => Xp.openStageStep(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep));
 
       //答題狀態
       var isNormal = false;
-      var answerStatus =
-          JsonUt.emptyToStr(row, 'AnswerStatus', AnswerStatusEstr.normal);
+      var replyStatus =
+          JsonUt.emptyToStr(row, 'ReplyStatus', ReplyStatusEstr.normal);
       Text ansStatus;
-      if (answerStatus == AnswerStatusEstr.finish) {
+      if (replyStatus == ReplyStatusEstr.finish) {
         ansStatus = WG.getGreenText('答對了!!');
-      } else if (answerStatus == AnswerStatusEstr.lock) {
-        ansStatus = WG.getRedText('錯誤太多，無法答題');
+      } else if (replyStatus == ReplyStatusEstr.lock) {
+        ansStatus = WG.getRedText('錯誤太多，無法再答');
       } else {
         isNormal = true;
         var errorCount = JsonUt.emptyToInt(row, 'ErrorCount', 0);
         ansStatus = (errorCount > 0)
-            ? WG.getRedText('錯誤$errorCount次')
+            ? WG.getRedText('猜錯$errorCount次')
             : const Text('未作答');
       }
 
@@ -97,7 +98,7 @@ class _StageAnyState extends State<StageAny> {
         subtitle: Column(
             crossAxisAlignment: CrossAxisAlignment.start, //向左對齊
             children: [
-              Text('提示：${row['CustHint'].toString()}'),
+              Text('提示：${row['AppHint'].toString()}'),
               ansStatus,
             ]),
         trailing: isNormal ? tail : const Text(''),

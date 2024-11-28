@@ -73,7 +73,7 @@ class _BaoDetailState extends State<BaoDetail> {
             WG2.labelText(
                 '是否需要移動', isMove ? '是' : '否', isMove ? Colors.red : null),
             WG2.labelText('關卡數目', json['StageCount'].toString()),
-            WG2.labelText('答題方式', json['AnswerTypeName'].toString()),
+            WG2.labelText('答題方式', json['ReplyTypeName'].toString()),
             WG2.labelText('獎項內容', json['PrizeNote']),
             WG2.labelText('遊戲說明', json['Note']),
             //WG.getShowCol('目前參加人數', row['JoinCount'].toString()),

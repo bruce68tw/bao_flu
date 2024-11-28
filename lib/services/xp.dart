@@ -122,20 +122,26 @@ class Xp {
   }
 
   ///open stage form
-  static openStage(
-      BuildContext context, String answerType, String baoId, String baoName) {
-    if (answerType == AnswerTypeEstr.batch) {
-      //batch
+  static Future openStageA (
+      BuildContext context, String baoId, String baoName, String replyType) async {
+    if (replyType == ReplyTypeEstr.batch) {
       ToolUt.openForm(context,
-          StageBatch(baoId: baoId, baoName: baoName, answerType: answerType));
-    } else if (answerType == AnswerTypeEstr.step) {
-      //step
-      ToolUt.openForm(
-          context, StageStep(baoId: baoId, baoName: baoName, editable: true));
-    } else if (answerType == AnswerTypeEstr.anyStep) {
-      //any
+          StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));
+    } else if (replyType == ReplyTypeEstr.step) {
+      //讀取目前關卡資料
+      await HttpUt.getJsonA(context, 'Stage/GetNowStepRow', false, {'baoId': baoId}, (row) {
+        openStageStep(context, baoId, baoName, row['Id'].toString(), replyType);
+      });
+    } else if (replyType == ReplyTypeEstr.anyStep) {
       ToolUt.openForm(context, StageAny(baoId: baoId, baoName: baoName));
     }
+  }
+
+  ///by Step、AnyStep
+  static openStageStep (
+      BuildContext context, String baoId, String baoName, String stageId, String replyType) {
+    //開啟畫面
+    ToolUt.openForm(context, StageStep(baoId: baoId, baoName: baoName, stageId: stageId, replyType: replyType));
   }
 
   /// set _userId & write info file
@@ -222,11 +228,13 @@ class Xp {
         prizeType == PrizeTypeEstr.moneyGift);
   }
 
+  /*
   //答題時顯示全部關卡
-  static bool baoAnswerStages(String answerType) {
-    return (answerType == AnswerTypeEstr.batch ||
-        answerType == AnswerTypeEstr.anyStep);
+  static bool baoReplyStages(String replyType) {
+    return (replyType == ReplyTypeEstr.batch ||
+        replyType == ReplyTypeEstr.anyStep);
   }
+  */
 
   /// get directory of stage image
   static String dirStageImage(String baoId) {
@@ -237,20 +245,31 @@ class Xp {
   /// param allImage: 是否下載多個關卡的圖檔
   /// return file index(base 1) if not batch
   static Future<int> downStageImage(BuildContext context, String baoId,
-      bool allImage, String dirImage) async {
+      String stageId, String replyType, String dirImage) async {
     //create folder if need
     var dir = Directory(dirImage);
     //TODO: temp add for remove cached image files
     //dir.deleteSync(recursive: true);
 
     //是否可同時回答多個謎題
-    if (allImage) {
+    String action = '';
+    Map<String, String> json;
+    if (replyType == ReplyTypeEstr.batch) {
       if (dir.existsSync() && dir.listSync().isNotEmpty) return 0;
+      action = 'Stage/GetBatchImage';
+      json = {'baoId': baoId};
+    } else if (replyType == ReplyTypeEstr.step) {
+      if (FileUt.dirHasFileStem(dirImage, stageId, false)) return 0;
+      action = 'Stage/GetNowStepImage';
+      json = {'baoId': baoId};
+    } else {
+      if (FileUt.dirHasFileStem(dirImage, stageId, false)) return 0;
+      action = 'Stage/GetAnyStepImage';
+      json = {'stageId': stageId};
     }
 
     //download and unzip
-    var action = allImage ? 'Stage/GetBatchImage' : 'Stage/GetStepImage';
-    await HttpUt.saveUnzipA(context, action, {'baoId': baoId}, dirImage);
+    await HttpUt.saveUnzipA(context, action, json, dirImage);
     return 1;
   }
 
@@ -261,7 +280,7 @@ class Xp {
       BuildContext context,
       String baoId,
       String dirImage,
-      String answerType,
+      String replyType,
       int stageIndex,
       TextEditingController ctrl /*, Function fnOnSubmit*/) {
     //set widgets & return
@@ -272,9 +291,9 @@ class Xp {
     var files = dir.listSync().toList();
     if (files.isEmpty) return emptyMsg();
 
-    var isBatch = (answerType == AnswerTypeEstr.batch);
-    var isStep = (answerType == AnswerTypeEstr.step);
-    var isAnyStep = (answerType == AnswerTypeEstr.anyStep);
+    var isBatch = (replyType == ReplyTypeEstr.batch);
+    var isStep = (replyType == ReplyTypeEstr.step);
+    var isAnyStep = (replyType == ReplyTypeEstr.anyStep);
 
     /*
     var btnText = isBatch ? '送出全部解答' : 
@@ -336,7 +355,8 @@ class Xp {
 
         var btn = ElevatedButton(
           child: const Text('送出解答', style: TextStyle(fontSize: 15)),
-          onPressed: () => Xp.onReplyOneA(context, baoId, stageId, ctrl),
+          //onPressed: () => Xp.onReplyOneA(context, baoId, stageId, ctrl),
+          onPressed: () => {},
         );
 
         //add submit button if need
@@ -372,26 +392,4 @@ class Xp {
     );
   }
 
-  //onclick 傳送一題解答
-  static Future onReplyOneA(BuildContext context, String baoId, String stageId,
-      TextEditingController ctrl /*, ElevatedButton btn*/) async {
-    var reply = ctrl.text;
-    if (StrUt.isEmpty(reply)) {
-      ToolUt.msg(context, '不可空白。');
-      return;
-    }
-
-    //0(fail),1(ok),-1(lock)
-    var data = {'baoId': baoId, 'stageId': stageId, 'reply': reply};
-    await HttpUt.getStrA(context, 'Stage/ReplyOne', false, data, (result) {
-      if (result == '1') {
-        //Xp.setAttendStatus(_baoId, AttendEstr.finish);
-        ToolUt.msg(context, '恭喜答對了!');
-      } else if (result == '0') {
-        ToolUt.msg(context, '哦哦，你猜錯了!');
-      } else if (result == '-1') {
-        ToolUt.msg(context, '答錯超過次數，本題無法再答!');
-      }
-    });
-  }
 } //class
