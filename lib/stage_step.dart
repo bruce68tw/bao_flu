@@ -67,6 +67,7 @@ class _StageStepState extends State<StageStep> {
     }
 
     //0(fail),1(ok),-1(lock)
+    //todo:答題成功或鎖定則離開此畫面
     var data = {'baoId': _baoId, 'stageId': _stageId, 'reply': reply};
     await HttpUt.getStrA(context, 'Stage/ReplyOne', false, data, (result) {
       if (result == '1') {
@@ -138,7 +139,7 @@ class _StageStepState extends State<StageStep> {
     ));
 
     //分隔線
-    widgets.add(const Divider());
+    //widgets.add(const Divider());
 
     return ListView(
       padding: WG.gap(10),

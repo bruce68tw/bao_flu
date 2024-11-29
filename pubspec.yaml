@@ -48,6 +48,8 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
 
+  flutter_launcher_icons: ^0.13.1  # 确保使用最新版本
+
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
@@ -89,3 +91,8 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+flutter_launcher_icons:
+  android: true    # 为 Android 生成图标
+  ios: true        # 为 iOS 生成图标
+  image_path: "asset/icon/app_icon.png"  # 图标路径
