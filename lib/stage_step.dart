@@ -51,8 +51,8 @@ class _StageStepState extends State<StageStep> {
     await Xp.downStageImage(context, _baoId, _stageId, _replyType, _dirImage);
 
     //get stage row and rebuild
-    await HttpUt.getJsonA(context, 'Stage/GetRowForStepAny', false, {'stageId': _stageId},
-        (row) {
+    await HttpUt.getJsonA(
+        context, 'Stage/GetRowForStepAny', false, {'stageId': _stageId}, (row) {
       _stageRow = row;
       setState(() => _isOk = true);
     });
@@ -67,16 +67,18 @@ class _StageStepState extends State<StageStep> {
     }
 
     //0(fail),1(ok),-1(lock)
-    //todo:答題成功或鎖定則離開此畫面
+    //答題成功或鎖定則離開此畫面
     var data = {'baoId': _baoId, 'stageId': _stageId, 'reply': reply};
     await HttpUt.getStrA(context, 'Stage/ReplyOne', false, data, (result) {
       if (result == '1') {
         //Xp.setAttendStatus(_baoId, AttendEstr.finish);
-        ToolUt.msg(context, '恭喜答對了!');
+        //ToolUt.msg(context, '恭喜答對了!');
+        ToolUt.closeFormMsg(context, '恭喜答對了!');
       } else if (result == '0') {
         ToolUt.msg(context, '哦哦，你猜錯了!');
       } else if (result == '-1') {
-        ToolUt.msg(context, '答錯超過次數，本題無法再答!');
+        //ToolUt.msg(context, '答錯超過次數，本題無法再答!');
+        ToolUt.closeFormMsg(context, '答錯超過次數，本題無法再答!');
       }
     });
   }
@@ -89,19 +91,20 @@ class _StageStepState extends State<StageStep> {
     //title, 謎題圖片上方文字:關卡/謎題, 提示
     var widgets = <Widget>[];
     var title = (_replyType == ReplyTypeEstr.step) ? '關卡' : '謎題';
-    title = "$title ${(_stageRow!['Sort']+1).toString()} / ${_stageRow!['StageCount'].toString()}";
+    title =
+        "$title ${(_stageRow!['Sort'] + 1).toString()} / ${_stageRow!['StageCount'].toString()}";
     var hint = _stageRow!['AppHint'];
 
     //add title
     widgets.add(Padding(
-      padding: const EdgeInsets.only(top: 10, bottom: 10, left: 5),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          WG.getText(title),
-          StrUt.isEmpty(hint) ? const Text('') : WG.getText('提示：$hint')
-        ],
-      )));
+        padding: const EdgeInsets.only(top: 10, bottom: 10, left: 5),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            WG.textWG(title),
+            StrUt.isEmpty(hint) ? const Text('') : WG.textWG('提示：$hint')
+          ],
+        )));
 
     //add image
     widgets.add(InteractiveViewer(

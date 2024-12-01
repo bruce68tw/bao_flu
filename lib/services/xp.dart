@@ -3,11 +3,12 @@ import 'package:path/path.dart' as path; //or will conflict
 //import 'package:archive/archive.dart';
 import 'dart:io';
 import 'package:base_flu/all.dart';
+//不可加入同目錄下 all.dart, 會造成循環參照
 import '../enums/all.dart';
-import '../models/bao_row_dto.dart';
-import '../stage_any.dart';
+import '../models/all.dart';
 import '../stage_batch.dart';
 import '../stage_step.dart';
+import '../stage_any.dart';
 import 'widget2.dart';
 
 /// static class
@@ -17,11 +18,11 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.127:5001';
+  static const apiServer = '192.168.43.6:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
-  static const aesKey = 'YourAesKey';
+  //static const aesKey = 'YourAesKey';
 
   ///register file name
   static const regFile = 'MyApp.info';
@@ -38,15 +39,19 @@ class Xp {
   //static String _aesKey16 = '';
 
   ///baoId,join status(1:join, else:cancel)
+  ///記錄用戶參加的尋寶, 避免再
   static final Map<String, String> _attend = {};
   //=== auto set end ===
 
-  static Future initFunA([bool testMode = false]) async {
-    if (!_isInit) {
-      await FunUt.init(isHttps, apiServer);
-      //_aesKey16 = StrUt.preZero(16, aesKey, true);
-      _isInit = true;
-    }
+  static Future initA([bool testMode = false]) async {
+    if (_isInit) return;
+
+    await FunUt.initA(isHttps, apiServer);
+    //_aesKey16 = StrUt.preZero(16, aesKey, true);
+    _isInit = true;
+
+    //set style
+    FunUt.textFontSize = 16;
   }
 
   /*
@@ -75,7 +80,7 @@ class Xp {
   /// @return initial status
   static Future<bool> isRegA(BuildContext? context) async {
     //initial if need
-    await initFunA();
+    await initA();
     if (FunUt.isLogin) return true;
 
     //read info file if need
@@ -111,6 +116,16 @@ class Xp {
     }
   }
 
+  ///get attend status info<br>
+  ///@return <name,color>
+  static Map<String, dynamic> attendStatusJson(String? status) {
+    return StrUt.isEmpty(status) ? {'name': '未參加', 'color': Colors.grey} :
+      (status == AttendStatusEstr.attend) ? {'name': '已參加', 'color': Colors.black} :
+      (status == AttendStatusEstr.finish) ? {'name': '已答對', 'color': Colors.green} :
+      (status == AttendStatusEstr.cancel) ? {'name': '已取消', 'color': Colors.red} :
+      {'name': '??', 'color': Colors.red};
+  }
+
   ///get attend status
   static String? getAttendStatus(String baoId) {
     return _attend.containsKey(baoId) ? _attend[baoId] : null;
@@ -122,26 +137,33 @@ class Xp {
   }
 
   ///open stage form
-  static Future openStageA (
-      BuildContext context, String baoId, String baoName, String replyType) async {
+  static Future openStageA(BuildContext context, String baoId, String baoName,
+      String replyType) async {
     if (replyType == ReplyTypeEstr.batch) {
-      ToolUt.openForm(context,
+      ToolUt.openFormA(context,
           StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));
     } else if (replyType == ReplyTypeEstr.step) {
       //讀取目前關卡資料
-      await HttpUt.getJsonA(context, 'Stage/GetNowStepRow', false, {'baoId': baoId}, (row) {
+      await HttpUt.getJsonA(
+          context, 'Stage/GetNowStepRow', false, {'baoId': baoId}, (row) {
         openStageStep(context, baoId, baoName, row['Id'].toString(), replyType);
       });
     } else if (replyType == ReplyTypeEstr.anyStep) {
-      ToolUt.openForm(context, StageAny(baoId: baoId, baoName: baoName));
+      ToolUt.openFormA(context, StageAny(baoId: baoId, baoName: baoName));
     }
   }
 
   ///by Step、AnyStep
-  static openStageStep (
-      BuildContext context, String baoId, String baoName, String stageId, String replyType) {
+  static openStageStep(BuildContext context, String baoId, String baoName,
+      String stageId, String replyType) {
     //開啟畫面
-    ToolUt.openForm(context, StageStep(baoId: baoId, baoName: baoName, stageId: stageId, replyType: replyType));
+    ToolUt.openFormA(
+        context,
+        StageStep(
+            baoId: baoId,
+            baoName: baoName,
+            stageId: stageId,
+            replyType: replyType));
   }
 
   /// set _userId & write info file
@@ -169,24 +191,13 @@ class Xp {
     return await file.exists() ? await file.readAsString() : '';
   }
 
-  ///return empty message
-  static Widget emptyMsg() {
-    return const Center(
-        child: Text(
-      '目前無任何資料。',
-      textAlign: TextAlign.center,
-      style: TextStyle(
-        fontSize: 18,
-        color: Colors.red,
-      ),
-    ));
-  }
-
-  /// baoRows to widget list
-  /// @rows source rows
-  /// @trails tail widget list
+  /// baoRows to widget list<br>
+  /// @rows source rows<br>
+  /// @trails tail widget list<br>
+  /// @onUpdateParent 呼叫父視窗函數<br>
   /// @return list widget
-  static List<Widget> baosToWidgets(List<BaoRowDto> rows, List<Widget> trails) {
+  static List<Widget> baosToWidgets(
+      List<BaoRowDto> rows, List<Widget> trails /*, Function onUpdateParent*/) {
     var widgets = <Widget>[];
     if (rows.isEmpty) return widgets;
 
@@ -208,7 +219,7 @@ class Xp {
         subtitle: Text('by: ${row.corp}\n${DateUt.format2(row.startTime)} 開始'),
         trailing: trails[i],
       ));
-      widgets.add(WG2.divider());
+      widgets.add(WG.divider());
     }
 
     return widgets;
@@ -289,7 +300,7 @@ class Xp {
     //var readOnly = (stageIndex == -1);
     var dir = Directory(dirImage);
     var files = dir.listSync().toList();
-    if (files.isEmpty) return emptyMsg();
+    if (files.isEmpty) return WG2.noRowMsg();
 
     var isBatch = (replyType == ReplyTypeEstr.batch);
     var isStep = (replyType == ReplyTypeEstr.step);
@@ -326,7 +337,7 @@ class Xp {
       //add text
       widgets.add(Padding(
         padding: const EdgeInsets.only(top: 10, bottom: 10, left: 5),
-        child: WG.getText(text),
+        child: WG.textWG(text),
       ));
 
       //add image
@@ -391,5 +402,4 @@ class Xp {
       children: widgets,
     );
   }
-
 } //class

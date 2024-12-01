@@ -6,22 +6,36 @@ import 'package:base_flu/all.dart';
 class WG2 {
   static const pagePad = EdgeInsets.all(20);
 
-  ///get appBar widget
+  ///get appBar widget<br>
   ///@title title string
   static AppBar appBar(String title) {
     return AppBar(
-      toolbarHeight: 42,
-      title: WG.getText(title, color: Colors.white),
+      title: WG.textWG(title, color: Colors.white),
+      toolbarHeight: 40,
+      backgroundColor: Colors.orange,
     );
   }
 
+  ///return empty message(無任何資料)
+  static Widget noRowMsg() {
+    return const Center(
+      child: Text(
+        '目前無任何資料。',
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          fontSize: 18,
+          color: Colors.red,
+    )));
+  }
+
+  //=== temp add below ===
   ///display label & text
   static Column labelText(String label, String text, [Color? color]) {
     return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          WG.getText(label, color: Colors.grey),
-          WG.getText(text, color: color),
+          WG.textWG(label, color: Colors.grey),
+          WG.textWG(text, color: color),
           WG2.divider(),
         ]);
   }
@@ -34,8 +48,8 @@ class WG2 {
     );
   }
 
-  //return label
-  static InputDecoration inputLabel(String label) {
+  ///return label
+  static InputDecoration inputDecore(String label) {
     return InputDecoration(
       labelText: label,
       labelStyle: const TextStyle(
@@ -46,37 +60,34 @@ class WG2 {
     );
   }
 
-  ///create TextButton
+  ///create TextButton<br>
   ///VoidCallback is need, onPressed on ()=> before function !!
-  static TextButton textBtn(String text,
+  static TextButton linkBtn(String text,
       [VoidCallback? fnOnClick, Color? color]) {
     var status = (fnOnClick != null);
-    var color2 = (!status)
-        ? Colors.grey
-        : (color == null)
-            ? Colors.blue
-            : color;
+    var color2 = (!status) ? Colors.grey : 
+      (color == null) ? Colors.blue : color;
     return TextButton(
       onPressed: status ? fnOnClick : null,
-      child: WG.getText(text, color: color2),
+      child: WG.textWG(text, color: color2),
     );
   }
 
-  ///one button at form end/tail
-  static Container tailBtn(String text,
+  ///one button at form end(畫面下方, 水平置中)
+  static Container endBtn(String text,
       [VoidCallback? fnOnClick, double? top]) {
     var status = (fnOnClick != null);
     return Container(
-        alignment: Alignment.center,
-        margin: (top == null)
-            ? WG.gap(15)
-            : EdgeInsets.only(top: top, right: 15, bottom: 15, left: 15),
-        child: ElevatedButton(
-          onPressed: status ? fnOnClick : null,
-          child: WG.getText(text),
-        ));
+      alignment: Alignment.center,
+      margin: (top == null)
+        ? WG.gap(15)
+        : EdgeInsets.only(top: top, right: 15, bottom: 15, left: 15),
+      child: ElevatedButton(
+        onPressed: status ? fnOnClick : null,
+        child: WG.textWG(text),
+      ));
   }
-
+  
   static Divider divider() {
     return WG.divider(15);
   }

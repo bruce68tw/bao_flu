@@ -49,7 +49,7 @@ class _StageAnyState extends State<StageAny> {
     //var dir = Directory(_dirImage);
     //var files = dir.listSync().toList();
     //if (files.isEmpty) return Xp.emptyMsg();
-    if (_stageRows.isEmpty) return Xp.emptyMsg();
+    if (_stageRows.isEmpty) return WG2.noRowMsg();
 
     //sorting files, 檔案數與 _stageRows 筆數相同
     //var fileLen = files.length;
@@ -74,7 +74,7 @@ class _StageAnyState extends State<StageAny> {
       }
 
       //tail button
-      var tail = WG2.textBtn('解答', () => Xp.openStageStep(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep));
+      var tail = WG.linkBtn('解答', () => Xp.openStageStep(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep));
 
       //答題狀態
       var isNormal = false;
@@ -82,14 +82,14 @@ class _StageAnyState extends State<StageAny> {
           JsonUt.emptyToStr(row, 'ReplyStatus', ReplyStatusEstr.normal);
       Text ansStatus;
       if (replyStatus == ReplyStatusEstr.finish) {
-        ansStatus = WG.getGreenText('答對了!!');
+        ansStatus = WG.greenText('答對了!!');
       } else if (replyStatus == ReplyStatusEstr.lock) {
-        ansStatus = WG.getRedText('錯誤太多，無法再答');
+        ansStatus = WG.redText('錯誤太多，無法再答');
       } else {
         isNormal = true;
         var errorCount = JsonUt.emptyToInt(row, 'ErrorCount', 0);
         ansStatus = (errorCount > 0)
-            ? WG.getRedText('猜錯$errorCount次')
+            ? WG.redText('猜錯$errorCount次')
             : const Text('未作答');
       }
 
@@ -104,7 +104,7 @@ class _StageAnyState extends State<StageAny> {
         trailing: isNormal ? tail : const Text(''),
       ));
 
-      widgets.add(WG2.divider());
+      widgets.add(WG.divider());
     } //for
 
     return ListView(

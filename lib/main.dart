@@ -3,28 +3,28 @@ import 'bao.dart';
 import 'msg.dart';
 import 'my_data.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const MainApp());
 
 /// This Widget is the main application widget.
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class MainApp extends StatelessWidget {
+  const MainApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: MainForm(),
+      home: Main(),
     );
   }
 } //MyApp
 
-class MainForm extends StatefulWidget {
-  const MainForm({super.key});
+class Main extends StatefulWidget {
+  const Main({super.key});
 
   @override
-  _MainFormState createState() => _MainFormState();
+  MainState createState() => MainState();
 }
 
-class _MainFormState extends State<MainForm> {
+class MainState extends State<Main> {
   //1.控制要顯示的畫面
   int _index = 0;
   final _items = <Widget>[

@@ -30,7 +30,7 @@ class _MsgState extends State<Msg> {
     if (!await Xp.isRegA(context)) return;
 
     //get rows, check & set total rows
-    await HttpUt.getJsonA(context, 'Cms/GetPage', true, _pagerSrv.getDtJson2(),
+    await HttpUt.getJsonA(context, 'Cms/GetPage', true, _pagerSrv.getDtJson(),
         (json) {
       if (json == null) return;
 
@@ -43,7 +43,7 @@ class _MsgState extends State<Msg> {
   ///get view body widget
   Widget getBody() {
     var rows = _pagerDto.rows;
-    if (rows.isEmpty) return Xp.emptyMsg();
+    if (rows.isEmpty) return WG2.noRowMsg();
 
     //#region get rows
     var list = <Widget>[];
@@ -56,10 +56,10 @@ class _MsgState extends State<Msg> {
         */
         title: Text(row.title),
         subtitle: Text('${DateUt.format2(row.startTime)} 開始'),
-        trailing: WG2.textBtn('看明細', () => onDetail(row.id)),
+        trailing: WG.linkBtn('看明細', () => onDetail(row.id)),
       ));
 
-      list.add(WG2.divider());
+      list.add(WG.divider());
     }
     //#endregion
 
@@ -70,7 +70,7 @@ class _MsgState extends State<Msg> {
   /// onclick bao item
   /// @id Bao.Id
   void onDetail(String id) {
-    ToolUt.openForm(context, MsgDetail(id: id));
+    ToolUt.openFormA(context, MsgDetail(id: id));
   }
 
   @override

@@ -86,7 +86,7 @@ class _UserEditState extends State<UserEdit> {
       if (data == 'RECOVER') {
         run = false;
         ToolUt.ans(context, '這個Email已經存在, 是否回復帳號?', () {
-          ToolUt.openForm(context, UserRecover(email: emailCtrl.text));
+          ToolUt.openFormA(context, UserRecover(email: emailCtrl.text));
         });
       }
     });
@@ -154,8 +154,8 @@ class _UserEditState extends State<UserEdit> {
                   TextFormField(
                     readOnly: isRead,
                     controller: phoneCtrl,
-                    style: WG2.inputStyle(status),
-                    decoration: WG2.inputLabel('手機號碼 (不含國碼, 確定後無法修改)'),
+                    style: WG.inputStyle(status: status),
+                    decoration: WG.inputDecore('手機號碼 (不含國碼, 確定後無法修改)'),
                     autofocus: true,
                     validator: (value) {
                       if (value == null || value.isEmpty) return '手機號碼不可空白。';
@@ -170,8 +170,8 @@ class _UserEditState extends State<UserEdit> {
                   ),
                   TextFormField(
                     controller: nameCtrl,
-                    style: WG2.inputStyle(),
-                    decoration: WG2.inputLabel('顯示名稱'),
+                    style: WG.inputStyle(),
+                    decoration: WG.inputDecore('顯示名稱'),
                     validator: (value) {
                       if (value == null || value.isEmpty) return '顯示名稱不可空白。';
 
@@ -182,8 +182,8 @@ class _UserEditState extends State<UserEdit> {
                   TextFormField(
                     readOnly: isRead,
                     controller: emailCtrl,
-                    style: WG2.inputStyle(status),
-                    decoration: WG2.inputLabel('Email (須認證, 確定後無法修改)'),
+                    style: WG.inputStyle(status: status),
+                    decoration: WG.inputDecore('Email (須認證, 確定後無法修改)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) return 'Email不可空白。';
 
@@ -194,8 +194,8 @@ class _UserEditState extends State<UserEdit> {
                   TextFormField(
                     controller: addressCtrl,
                     //initialValue: 'Taipei',
-                    style: WG2.inputStyle(),
-                    decoration: WG2.inputLabel('地址 (用於寄送獎品)'),
+                    style: WG.inputStyle(),
+                    decoration: WG.inputDecore('地址 (用於寄送獎品)'),
                     validator: (value) {
                       if (value == null || value.isEmpty) return '地址不可空白。';
 
@@ -203,19 +203,17 @@ class _UserEditState extends State<UserEdit> {
                       return null;
                     },
                   ),
-                  !_isNew
-                      ? WG2.tailBtn('修改資料', () => onUpdateA())
-                      : !_showAuth
-                          ? WG2.tailBtn('建立帳號', () => onCreateA())
-                          : Column(children: <Widget>[
-                              //WG.tailBtn('建立帳戶'),
-                              TextFormField(
-                                controller: authCtrl,
-                                style: WG2.inputStyle(),
-                                decoration: WG2.inputLabel('請輸入Email信件裡面的認証碼'),
-                              ),
-                              WG2.tailBtn('執行認証', () => onAuthA()),
-                            ]),
+                  !_isNew ? WG.endBtn('修改資料', () => onUpdateA()) : 
+                  !_showAuth ? WG.btn('建立帳號2', onCreateA) : 
+                    Column(children: <Widget>[
+                      //WG.tailBtn('建立帳戶'),
+                      TextFormField(
+                        controller: authCtrl,
+                        style: WG.inputStyle(),
+                        decoration: WG.inputDecore('請輸入Email信件裡面的認証碼'),
+                      ),
+                      WG.endBtn('執行認証', () => onAuthA()),
+                    ]),
                 ],
               ),
             ),

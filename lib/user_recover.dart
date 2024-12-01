@@ -70,19 +70,19 @@ class _UserRecoverState extends State<UserRecover> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            WG2.labelText('Email', widget.email),
-            WG.getText('要回復這個Email所對應的用戶帳號, '
+            WG.labelText('Email', widget.email),
+            WG.textWG('要回復這個Email所對應的用戶帳號, '
                 '請點擊下方的 [寄送認証郵件] 按鈕, 系統將會寄送認証Email到上面的信箱。'),
-            WG2.divider(),
+            WG.divider(),
             (_step == 1)
-                ? WG2.tailBtn('寄送認証郵件', () => onEmailA())
+                ? WG.endBtn('寄送認証郵件', () => onEmailA())
                 : Column(children: <Widget>[
                     TextFormField(
                       controller: authCtrl,
-                      style: WG2.inputStyle(),
-                      decoration: WG2.inputLabel('請輸入Email信件裡面的認証碼'),
+                      style: WG.inputStyle(),
+                      decoration: WG.inputDecore('請輸入Email信件裡面的認証碼'),
                     ),
-                    WG2.tailBtn('回復用戶帳號', () => onRecoverA()),
+                    WG.endBtn('回復用戶帳號', () => onRecoverA()),
                   ]),
           ],
         ),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
-import 'stage_step.dart';
 
 class MyBao extends StatefulWidget {
   const MyBao({super.key});
@@ -30,8 +29,8 @@ class _MyBaoState extends State<MyBao> {
     if (!await Xp.isRegA(context)) return;
 
     //get rows & check
-    await HttpUt.getJsonA(
-        context, 'MyBao/GetPage', true, _pagerSrv.getDtJson2(), (json) {
+    await HttpUt.getJsonA(context, 'MyBao/GetPage', true, _pagerSrv.getDtJson(),
+        (json) {
       if (json == null) return;
 
       _pagerDto = PagerDto<BaoRowDto>.fromJson(json, BaoRowDto.fromJson);
@@ -42,9 +41,9 @@ class _MyBaoState extends State<MyBao> {
   ///get view body widget
   Widget getBody() {
     var rows = _pagerDto.rows;
-    if (rows.isEmpty) return Xp.emptyMsg();
+    if (rows.isEmpty) return WG2.noRowMsg();
 
-    var list = Xp.baosToWidgets(rows, rowsToTrails(rows));
+    var list = Xp.baosToWidgets(rows, rowsToTrails(rows));  //todo
     list.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
     return ListView(children: list);
   }
@@ -55,14 +54,14 @@ class _MyBaoState extends State<MyBao> {
     for (int i = 0; i < rows.length; i++) {
       var row = rows[i];
       var status = Xp.getAttendStatus(row.id);
-      widgets.add((status == AttendEstr.finish)
-          ? WG.getGreenText('已答對')
-            /*WG2.textBtn(
+      widgets.add((status == AttendStatusEstr.finish)
+          ? WG.greenText('已答對')
+          /*WG2.textBtn(
               '已答對',
               () => ToolUt.openForm(context,
                   StageStep(baoId: row.id, baoName: row.name, editable: false)))*/
-          : WG2.textBtn(
-              '解題', () => Xp.openStageA(context, row.id, row.name, row.replyType)));
+          : WG.linkBtn('解題',
+              () => Xp.openStageA(context, row.id, row.name, row.replyType)));
     }
     return widgets;
   }

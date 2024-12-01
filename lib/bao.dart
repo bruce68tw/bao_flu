@@ -3,18 +3,15 @@ import 'package:flutter/material.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
 import 'bao_detail.dart';
-import 'stage_any.dart';
-import 'stage_batch.dart';
-import 'stage_step.dart';
 
 class Bao extends StatefulWidget {
   const Bao({super.key});
 
   @override
-  _BaoState createState() => _BaoState();
+  BaoState createState() => BaoState();
 }
 
-class _BaoState extends State<Bao> {
+class BaoState extends State<Bao> {
   //1.宣告變數
   bool _isOk = false; //state variables
   late PagerSrv _pagerSrv; //pager service
@@ -23,42 +20,74 @@ class _BaoState extends State<Bao> {
   @override
   void initState() {
     //2.分頁元件, set first, coz function parameter !!
-    _pagerSrv = PagerSrv(rebuildA);
+    _pagerSrv = PagerSrv(readRenderA);
 
     //call before rebuild()
     super.initState();
 
     //3.讀取資料, call async rebuild
-    Future.delayed(Duration.zero, () => rebuildA());
+    Future.delayed(Duration.zero, () => readRenderA());
   }
 
-  /// rebuild page
-  Future rebuildA() async {
+  /// read rows & render form
+  Future readRenderA() async {
     //4.檢查初始狀態, check initial status
     if (!await Xp.isRegA(context)) return;
 
     //5.讀取資料庫, get rows & check
-    await HttpUt.getJsonA(context, 'Bao/GetPage', true, _pagerSrv.getDtJson2(),
-        (json) {
-      if (json == null) return;
-
-      _pagerDto = PagerDto<BaoRowDto>.fromJson(json, BaoRowDto.fromJson);
-      _isOk = true;
-      setState(() {}); //call build()
+    await HttpUt.getJsonA(context, 'Bao/GetPage', true, _pagerSrv.getDtJson(), (json) {
+      if (json != null) {
+        _pagerDto = PagerDto<BaoRowDto>.fromJson(json, BaoRowDto.fromJson);
+        render();
+      }
     });
   }
 
-  //6.顯示畫面內容, get view body widget
-  Widget getBody() {
-    var rows = _pagerDto.rows;
-    if (rows.isEmpty) return Xp.emptyMsg();
-
-    var list = Xp.baosToWidgets(rows, rowsToTrails(rows));
-    list.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
-    return ListView(children: list);
+  /// render form
+  void render() {
+    _isOk = true;
+    setState(() {}); //call build()
   }
 
-  //7.畫面結構
+  /// get trail widgets(button)<br>
+  /// @rows Bao list rows
+  List<Widget> rowsToTrails(List<BaoRowDto> rows) {
+    var widgets = <Widget>[];
+    for (var row in rows) {
+      var json = Xp.attendStatusJson(row.attendStatus);
+      widgets.add(WG.btn(json['name'], () async => await onDetailA(row.id), json['color']));
+    }
+      /*
+      widgets.add((status == null)
+          ? WG2.textBtn('看明細', () => ToolUt.openFormA(context, BaoDetail(baoId: row.id, onUpdateParent)))
+          : (status == AttendStatusEstr.attend)
+              ? WG2.textBtn('已參加', () => onPlayGameA(row.id, row.name, row.replyType), Colors.green)
+              : (status == AttendStatusEstr.finish)
+                  ? WG2.textBtn('已答對', () => onDetail(row.id))
+                  : WG2.textBtn('已取消', () => onPlayGameA(row.id, row.name, row.replyType), Colors.red));
+      */
+    //}
+
+    return widgets;
+  }
+
+  /// onclick bao detail
+  Future onDetailA(String baoId) async {
+    var result = await ToolUt.openFormA(context, BaoDetail(baoId: baoId));
+    var aa = 'aa';
+  }
+
+  ///6.顯示畫面內容, get view body widget
+  Widget getBody() {
+    var rows = _pagerDto.rows;
+    if (rows.isEmpty) return WG2.noRowMsg();
+
+    var widgets = Xp.baosToWidgets(rows, rowsToTrails(rows));
+    widgets.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
+    return ListView(children: widgets);
+  }
+
+  ///7.render畫面
   @override
   Widget build(BuildContext context) {
     //check status
@@ -71,13 +100,7 @@ class _BaoState extends State<Bao> {
     );
   }
 
-  /// onclick bao item
-  /// @id Bao.Id
-  void onDetail(String id) {
-    ToolUt.openForm(context, BaoDetail(id: id));
-  }
-
-  //onOpen Stage, 開始尋寶關卡
+  ///onOpen Stage, 開始尋寶關卡
   Future onPlayGameA(String baoId, String baoName, String replyType) async {
     await Xp.openStageA(context, baoId, baoName, replyType);
     /*
@@ -97,26 +120,7 @@ class _BaoState extends State<Bao> {
     */
   }
 
-  /// get trailings widget
-  /// @rows Bao list rows
-  List<Widget> rowsToTrails(List<BaoRowDto> rows) {
-    var widgets = <Widget>[];
-    for (int i = 0; i < rows.length; i++) {
-      var row = rows[i];
-      var status = Xp.getAttendStatus(row.id);
-      widgets.add((status == null)
-          ? WG2.textBtn('看明細', () => onDetail(row.id))
-          : (status == AttendEstr.run)
-              ? WG2.textBtn('已參加',
-                  () => onPlayGameA(row.id, row.name, row.replyType), Colors.green)
-              : (status == AttendEstr.finish)
-                  ? WG2.textBtn('已答對', () => onDetail(row.id))
-                  : WG2.textBtn(
-                      '已取消',
-                      () => onPlayGameA(row.id, row.name, row.replyType),
-                      Colors.red));
-    }
-
-    return widgets;
-  }
+  ///called by BaoDetail
+  ///@act 參加尋寶、進行尋寶、取消參加
+  void onUpdateParent(String act, String baoId) {}
 } //class

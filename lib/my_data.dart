@@ -9,12 +9,12 @@ class MyData extends StatelessWidget {
 
   /// onclick myBao
   void onMyBao(BuildContext context) {
-    ToolUt.openForm(context, const MyBao());
+    ToolUt.openFormA(context, const MyBao());
   }
 
   /// onclick edit user info
   void onEdit(BuildContext context) {
-    ToolUt.openForm(context, const UserEdit());
+    ToolUt.openFormA(context, const UserEdit());
   }
 
   SizedBox preIcon(IconData icon) {
@@ -36,16 +36,16 @@ class MyData extends StatelessWidget {
               leading: preIcon(Icons.redeem),
               title: Align(
                 alignment: Alignment.centerLeft,
-                child: WG2.textBtn('我的尋寶', () => onMyBao(context)),
+                child: WG.linkBtn('我的尋寶', () => onMyBao(context)),
               )),
-          WG2.divider(),
+          WG.divider(),
           ListTile(
               leading: preIcon(Icons.edit),
               title: Align(
                 alignment: Alignment.centerLeft,
-                child: WG2.textBtn('維護基本資料', () => onEdit(context)),
+                child: WG.linkBtn('維護基本資料', () => onEdit(context)),
               )),
-          WG2.divider(),
+          WG.divider(),
         ],
       ),
     );

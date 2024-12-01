@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 //import 'package:flutter_html/flutter_html.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
-import 'enums/cms_type_estr.dart';
 
 class MsgDetail extends StatefulWidget {
   const MsgDetail({super.key, required this.id});
@@ -41,9 +40,9 @@ class _MsgDetailState extends State<MsgDetail> {
           //3.get image file
           _bodyWidget = await HttpUt.getImageA(context, 'Cms/ViewFile',
               {'id': widget.id, 'ext': FileUt.jsonToImageExt(json)});
-          _bodyWidget ??= Xp.emptyMsg();
+          _bodyWidget ??= WG2.noRowMsg();
         } else {
-          _bodyWidget = WG2.labelText('訊息內容', json['Text']);
+          _bodyWidget = WG.labelText('訊息內容', json['Text']);
         }
 
         setState(() {});
@@ -82,7 +81,7 @@ class _MsgDetailState extends State<MsgDetail> {
         padding: WG2.pagePad,
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: <Widget>[WG2.labelText('標題', json['Title']), _bodyWidget!],
+          children: <Widget>[WG.labelText('標題', json['Title']), _bodyWidget!],
         ),
       ),
     );
