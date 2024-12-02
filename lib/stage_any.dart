@@ -74,7 +74,7 @@ class _StageAnyState extends State<StageAny> {
       }
 
       //tail button
-      var tail = WG.linkBtn('解答', () => Xp.openStageStep(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep));
+      var tail = WG.linkBtn('解答', () => Xp.playStageStep(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep));
 
       //答題狀態
       var isNormal = false;

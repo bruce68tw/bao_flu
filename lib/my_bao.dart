@@ -61,7 +61,7 @@ class _MyBaoState extends State<MyBao> {
               () => ToolUt.openForm(context,
                   StageStep(baoId: row.id, baoName: row.name, editable: false)))*/
           : WG.linkBtn('解題',
-              () => Xp.openStageA(context, row.id, row.name, row.replyType)));
+              () => Xp.playGameA(context, row.id, row.name, row.replyType)));
     }
     return widgets;
   }

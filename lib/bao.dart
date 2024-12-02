@@ -55,7 +55,7 @@ class BaoState extends State<Bao> {
     var widgets = <Widget>[];
     for (var row in rows) {
       var json = Xp.attendStatusJson(row.attendStatus);
-      widgets.add(WG.btn(json['name'], () async => await onDetailA(row.id), json['color']));
+      widgets.add(WG.btn(json['name'], () async => await onDetailA(row), json['color']));
     }
       /*
       widgets.add((status == null)
@@ -72,9 +72,14 @@ class BaoState extends State<Bao> {
   }
 
   /// onclick bao detail
-  Future onDetailA(String baoId) async {
-    var result = await ToolUt.openFormA(context, BaoDetail(baoId: baoId));
-    var aa = 'aa';
+  Future onDetailA(BaoRowDto row) async {
+    var result = await ToolUt.openFormA(context, BaoDetail(baoId: row.id, attendStatus: row.attendStatus));
+    if (result == 'A'){   //參加尋寶
+      row.attendStatus = AttendStatusEstr.attend;
+      render();
+    } else if (result == 'P'){  //開始尋寶
+      await Xp.playGameA(context, row.id, row.name, row.replyType);
+    }
   }
 
   ///6.顯示畫面內容, get view body widget
@@ -102,7 +107,7 @@ class BaoState extends State<Bao> {
 
   ///onOpen Stage, 開始尋寶關卡
   Future onPlayGameA(String baoId, String baoName, String replyType) async {
-    await Xp.openStageA(context, baoId, baoName, replyType);
+    await Xp.playGameA(context, baoId, baoName, replyType);
     /*
     if (replyType == ReplyTypeEstr.batch) {
       ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));

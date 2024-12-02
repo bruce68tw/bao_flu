@@ -18,7 +18,7 @@ class Xp {
   static const isHttps = false;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.6:5001';
+  static const apiServer = '192.168.43.127:5001';
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -119,8 +119,8 @@ class Xp {
   ///get attend status info<br>
   ///@return <name,color>
   static Map<String, dynamic> attendStatusJson(String? status) {
-    return StrUt.isEmpty(status) ? {'name': '未參加', 'color': Colors.grey} :
-      (status == AttendStatusEstr.attend) ? {'name': '已參加', 'color': Colors.black} :
+    return StrUt.isEmpty(status) ? {'name': '未參加', 'color': Colors.black} :
+      (status == AttendStatusEstr.attend) ? {'name': '已參加', 'color': Colors.blue} :
       (status == AttendStatusEstr.finish) ? {'name': '已答對', 'color': Colors.green} :
       (status == AttendStatusEstr.cancel) ? {'name': '已取消', 'color': Colors.red} :
       {'name': '??', 'color': Colors.red};
@@ -136,8 +136,8 @@ class Xp {
     _attend[baoId] = status;
   }
 
-  ///open stage form
-  static Future openStageA(BuildContext context, String baoId, String baoName,
+  ///open stage form, 進行尋寶
+  static Future playGameA(BuildContext context, String baoId, String baoName,
       String replyType) async {
     if (replyType == ReplyTypeEstr.batch) {
       ToolUt.openFormA(context,
@@ -146,7 +146,7 @@ class Xp {
       //讀取目前關卡資料
       await HttpUt.getJsonA(
           context, 'Stage/GetNowStepRow', false, {'baoId': baoId}, (row) {
-        openStageStep(context, baoId, baoName, row['Id'].toString(), replyType);
+        playStageStep(context, baoId, baoName, row['Id'].toString(), replyType);
       });
     } else if (replyType == ReplyTypeEstr.anyStep) {
       ToolUt.openFormA(context, StageAny(baoId: baoId, baoName: baoName));
@@ -154,16 +154,16 @@ class Xp {
   }
 
   ///by Step、AnyStep
-  static openStageStep(BuildContext context, String baoId, String baoName,
+  static playStageStep(BuildContext context, String baoId, String baoName,
       String stageId, String replyType) {
     //開啟畫面
     ToolUt.openFormA(
-        context,
-        StageStep(
-            baoId: baoId,
-            baoName: baoName,
-            stageId: stageId,
-            replyType: replyType));
+      context,
+      StageStep(
+        baoId: baoId,
+        baoName: baoName,
+        stageId: stageId,
+        replyType: replyType));
   }
 
   /// set _userId & write info file
