@@ -1,9 +1,64 @@
+//import 'dart:io';
+//import 'package:base_flu/all.dart';
 import 'package:flutter/material.dart';
 import 'bao.dart';
 import 'msg.dart';
 import 'my_data.dart';
+//import 'package:http/io_client.dart';
+//import 'package:flutter/services.dart';
+//import 'dart:convert';
+//import 'package:http/http.dart' as http;
 
-void main() => runApp(const MainApp());
+//http.Client? _http;
+
+void main() {
+  // 忽略 HTTPS 憑證驗證
+  //HttpOverrides.global = MyHttpOverrides();
+  runApp(const MainApp());
+  //await initHttpA();
+  //Future.delayed(Duration.zero, () => initHttpA());
+}
+
+/*
+class MyHttpOverrides extends HttpOverrides {
+  @override
+  HttpClient createHttpClient(SecurityContext? context) {
+    return super.createHttpClient(context)..badCertificateCallback =
+      (X509Certificate cert, String host, int port) => true;
+  }
+}
+
+Future initHttpA() async {
+  if (FunUt.http2 == null) {
+    // 從 assets 中加載憑證
+    final sslCert = await rootBundle.load('assets/eden.org.tw.pem');
+
+    // 建立一個 SecurityContext 並載入 PEM 憑證
+    SecurityContext context = SecurityContext.defaultContext;
+    context.setTrustedCertificatesBytes(sslCert.buffer.asUint8List());
+
+    // 使用自定義的 SecurityContext 初始化 HttpClient
+    HttpClient httpClient = HttpClient(context: context);
+
+    // 創建 client 並儲存
+    FunUt.http2 = httpClient;
+  }
+  //return FunUt.http2!;
+}
+
+Future<http.client> createCustomHttpClient() async {
+  // 從 assets 中加載憑證
+  final sslCert = await rootBundle.load('assets/certificate.pem');
+
+  // 建立一個 SecurityContext 並載入 PEM 憑證
+  SecurityContext context = SecurityContext.defaultContext;
+  context.setTrustedCertificatesBytes(sslCert.buffer.asUint8List());
+
+  // 使用自定義的 SecurityContext 初始化 HttpClient
+  HttpClient httpClient = HttpClient(context: context);
+  return IOClient(httpClient);
+}
+*/
 
 /// This Widget is the main application widget.
 class MainApp extends StatelessWidget {

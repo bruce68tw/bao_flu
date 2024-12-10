@@ -2,7 +2,6 @@
 import 'package:flutter/material.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
-import 'bao_detail.dart';
 
 class Bao extends StatefulWidget {
   const Bao({super.key});
@@ -44,11 +43,9 @@ class BaoState extends State<Bao> {
   }
 
   /// render form
-  void render() {
-    _isOk = true;
-    setState(() {}); //call build()
-  }
+  void render()=> setState(()=> _isOk = true);
 
+  /*
   /// get trail widgets(button)<br>
   /// @rows Bao list rows
   List<Widget> rowsToTrails(List<BaoRowDto> rows) {
@@ -57,24 +54,13 @@ class BaoState extends State<Bao> {
       var json = Xp.attendStatusJson(row.attendStatus);
       widgets.add(WG.btn(json['name'], () async => await onDetailA(row), json['color']));
     }
-      /*
-      widgets.add((status == null)
-          ? WG2.textBtn('看明細', () => ToolUt.openFormA(context, BaoDetail(baoId: row.id, onUpdateParent)))
-          : (status == AttendStatusEstr.attend)
-              ? WG2.textBtn('已參加', () => onPlayGameA(row.id, row.name, row.replyType), Colors.green)
-              : (status == AttendStatusEstr.finish)
-                  ? WG2.textBtn('已答對', () => onDetail(row.id))
-                  : WG2.textBtn('已取消', () => onPlayGameA(row.id, row.name, row.replyType), Colors.red));
-      */
-    //}
-
     return widgets;
   }
 
   /// onclick bao detail
   Future onDetailA(BaoRowDto row) async {
     var result = await ToolUt.openFormA(context, BaoDetail(baoId: row.id, attendStatus: row.attendStatus));
-    if (result == 'A'){   //參加尋寶
+    if (result == AttendStatusEstr.attend){   //參加尋寶
       row.attendStatus = AttendStatusEstr.attend;
       render();
     } else if (result == 'P'){  //開始尋寶
@@ -91,7 +77,8 @@ class BaoState extends State<Bao> {
     widgets.add(_pagerSrv.getWidget(_pagerDto.recordsFiltered));
     return ListView(children: widgets);
   }
-
+  */
+  
   ///7.render畫面
   @override
   Widget build(BuildContext context) {
@@ -101,31 +88,18 @@ class BaoState extends State<Bao> {
     //return page
     return Scaffold(
       appBar: WG2.appBar('尋寶'),
-      body: getBody(),
+      body: Xp.getBaoBody(context, _pagerSrv, _pagerDto, render),
     );
   }
 
+  /*
   ///onOpen Stage, 開始尋寶關卡
   Future onPlayGameA(String baoId, String baoName, String replyType) async {
     await Xp.playGameA(context, baoId, baoName, replyType);
-    /*
-    if (replyType == ReplyTypeEstr.batch) {
-      ToolUt.openForm(context, StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));
-    } else if (replyType == ReplyTypeEstr.step) {
-      //讀取目前關卡資料
-      await HttpUt.getJsonA(context, 'Stage/GetNowStepRow', false, {'baoId': baoId},
-          (row) {
-        //開啟畫面
-        ToolUt.openForm(context, StageStep(baoId: baoId, baoName: baoName, stageId: row['Id'].toString(), replyType: replyType));
-      });
-
-    } else if (replyType == ReplyTypeEstr.anyStep) {
-      ToolUt.openForm(context, StageAny(baoId: baoId, baoName: baoName));
-    }
-    */
   }
-
+  */
+  
   ///called by BaoDetail
   ///@act 參加尋寶、進行尋寶、取消參加
-  void onUpdateParent(String act, String baoId) {}
+  //void onUpdateParent(String act, String baoId) {}
 } //class

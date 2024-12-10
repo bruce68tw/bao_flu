@@ -8,10 +8,10 @@ class UserRecover extends StatefulWidget {
   final String email;
 
   @override
-  _UserRecoverState createState() => _UserRecoverState();
+  UserRecoverState createState() => UserRecoverState();
 }
 
-class _UserRecoverState extends State<UserRecover> {
+class UserRecoverState extends State<UserRecover> {
   int _step = 1; //control button status, 1/2
   final authCtrl = TextEditingController();
 
@@ -55,7 +55,7 @@ class _UserRecoverState extends State<UserRecover> {
     var data = '$authCode,${widget.email}';
     await HttpUt.getJsonA(context, 'User/Auth', false, {'data': data}, (json) {
       Xp.setInfoAndToken(json);
-      ToolUt.msg(context, '回復帳號作業已經完成。');
+      ToolUt.msg(context, '回復帳號作業已經完成。', ()=> ToolUt.closeForm(context));
     });
   }
 

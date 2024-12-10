@@ -12,15 +12,17 @@ class StageAny extends StatefulWidget {
   final String baoName; //Bao.Name
 
   @override
-  _StageAnyState createState() => _StageAnyState();
+  StageAnyState createState() => StageAnyState();
 }
 
-class _StageAnyState extends State<StageAny> {
+class StageAnyState extends State<StageAny> {
   bool _isOk = false; //status
   late String _baoId;
   late String _baoName;
   //late String _dirImage;
   List<dynamic> _stageRows = [];
+  late dynamic _nowRow;
+  String _attendResult = '';  //傳回 Bao form 的 attendStatus result
 
   @override
   void initState() {
@@ -29,19 +31,41 @@ class _StageAnyState extends State<StageAny> {
     //_dirImage = Xp.dirStageImage(_baoId);
 
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildA());
+    Future.delayed(Duration.zero, () => readRenderA());
   }
 
-  Future rebuildA() async {
+  Future readRenderA() async {
     //await Xp.downStageImage(context, _baoId, true, _dirImage);
 
     //讀取全部關卡資料
     await HttpUt.getJsonA(context, 'Stage/GetRowsForBatchAny', false, {'baoId': _baoId},
         (rows) {
       _stageRows = rows;
-      _isOk = true;
-      setState(() {});
+      render();
     });
+  }
+
+  /// render form
+  void render() {
+    _isOk = true;
+    setState(() {}); //call build()
+  }
+
+  //解題
+  Future onPlayStageStepA(dynamic row) async {
+    //傳回'1'(答對), '-1'(答錯&鎖定)    
+    _nowRow = row;
+    var replyStatus = await Xp.playStageStepA(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep);
+    if (StrUt.notEmpty(replyStatus)){
+      if (replyStatus == ReplyBaoStatusEstr.finish){  //尋寶完成
+        replyStatus = ReplyStageStatusEstr.right;
+        _attendResult = ReplyBaoStatusEstr.finish;
+      } else {
+        _attendResult = ReplyBaoStatusEstr.attend;
+      }
+      _nowRow['ReplyStatus'] = replyStatus;
+      render();
+    }
   }
 
   //get body widget for stageStep/stageBatch
@@ -74,34 +98,39 @@ class _StageAnyState extends State<StageAny> {
       }
 
       //tail button
-      var tail = WG.linkBtn('解答', () => Xp.playStageStep(context, _baoId, _baoName, row['Id'].toString(), ReplyTypeEstr.anyStep));
+      //var tail = WG.btn('解答', () => onPlayStageStepA(row['Id'].toString()));
 
       //答題狀態
-      var isNormal = false;
-      var replyStatus =
-          JsonUt.emptyToStr(row, 'ReplyStatus', ReplyStatusEstr.normal);
+      //var showBtn = false;
+      var errorCount = JsonUt.emptyToInt(row, 'ErrorCount', 0);
+      var replyStatus = row['ReplyStatus'];
+      var replyStatusJson = Xp.replyStageStatusJson(replyStatus, errorCount);
+      /*
       Text ansStatus;
-      if (replyStatus == ReplyStatusEstr.finish) {
+      if (replyStatus == ReplyBaoStatusEstr.finish) {
         ansStatus = WG.greenText('答對了!!');
-      } else if (replyStatus == ReplyStatusEstr.lock) {
+      } else if (replyBaoStatus == ReplyBaoStatusEstr.lock) {
         ansStatus = WG.redText('錯誤太多，無法再答');
       } else {
-        isNormal = true;
-        var errorCount = JsonUt.emptyToInt(row, 'ErrorCount', 0);
+        showBtn = true;
         ansStatus = (errorCount > 0)
             ? WG.redText('猜錯$errorCount次')
             : const Text('未作答');
       }
+      */
 
       widgets.add(ListTile(
         title: Text(title),
         subtitle: Column(
-            crossAxisAlignment: CrossAxisAlignment.start, //向左對齊
-            children: [
-              Text('提示：${row['AppHint'].toString()}'),
-              ansStatus,
-            ]),
-        trailing: isNormal ? tail : const Text(''),
+          crossAxisAlignment: CrossAxisAlignment.start, //向左對齊
+          children: [
+            Text('提示：${row['AppHint'].toString()}'),
+            WG.textWG(replyStatusJson['name'], color: replyStatusJson['color'])
+            //ansStatus,
+          ]),
+        trailing: (StrUt.isEmpty(replyStatus) || replyStatus == ReplyStageStatusEstr.wrong)
+          ? WG.btn('解答', () => onPlayStageStepA(row))
+          : const Text(''),
       ));
 
       widgets.add(WG.divider());
@@ -117,9 +146,16 @@ class _StageAnyState extends State<StageAny> {
   Widget build(BuildContext context) {
     if (!_isOk) return Container();
 
-    return Scaffold(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult : (didPop, result) {
+        if (!didPop) { //必須這樣寫, 否則會error !!
+          Navigator.pop(context, _attendResult);
+        }
+      },
+      child: Scaffold(
       appBar: WG2.appBar('解謎: ${widget.baoName}'),
       body: getBody(context),
-    );
+    ));
   }
 } //class

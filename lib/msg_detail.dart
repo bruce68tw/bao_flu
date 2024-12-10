@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-//import 'package:flutter_html/flutter_html.dart';
 import 'package:base_flu/all.dart';
 import 'all.dart';
 
@@ -8,10 +7,10 @@ class MsgDetail extends StatefulWidget {
   final String id; //input Msg.Id
 
   @override
-  _MsgDetailState createState() => _MsgDetailState();
+  MsgDetailState createState() => MsgDetailState();
 }
 
-class _MsgDetailState extends State<MsgDetail> {
+class MsgDetailState extends State<MsgDetail> {
   bool _isOk = false;
   bool _isCard = false;
   late Map<String, dynamic>? _json; //msg row json
@@ -20,10 +19,10 @@ class _MsgDetailState extends State<MsgDetail> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildA());
+    Future.delayed(Duration.zero, () => readRenderA());
   }
 
-  Future rebuildA() async {
+  Future readRenderA() async {
     //1.get Cms row
     await HttpUt.getJsonA(context, 'Cms/GetDetail', false, {'id': widget.id},
         (json) {
@@ -31,8 +30,7 @@ class _MsgDetailState extends State<MsgDetail> {
       //2.async function
       Future.delayed(Duration.zero, () async {
         //check result
-        _isOk = (json != null);
-        if (!_isOk) return;
+        if (json == null) return;
 
         _json = json!;
         _isCard = (json['CmsType'] == CmsTypeEstr.card);
@@ -45,9 +43,15 @@ class _MsgDetailState extends State<MsgDetail> {
           _bodyWidget = WG.labelText('訊息內容', json['Text']);
         }
 
-        setState(() {});
+        render();
       });
     });
+  }
+
+  /// render form
+  void render() {
+    _isOk = true;
+    setState(() {}); //call build()
   }
 
   /*
@@ -82,8 +86,6 @@ class _MsgDetailState extends State<MsgDetail> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[WG.labelText('標題', json['Title']), _bodyWidget!],
-        ),
-      ),
-    );
+    )));
   }
 } //class

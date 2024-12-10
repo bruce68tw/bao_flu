@@ -4,6 +4,7 @@ import 'package:path/path.dart' as path; //or will conflict
 import 'dart:io';
 import 'package:base_flu/all.dart';
 //不可加入同目錄下 all.dart, 會造成循環參照
+import '../bao_detail.dart';
 import '../enums/all.dart';
 import '../models/all.dart';
 import '../stage_batch.dart';
@@ -15,10 +16,13 @@ import 'widget2.dart';
 class Xp {
   //=== constant start ===
   ///1.is https or not
-  static const isHttps = false;
+  //static const isHttps = false;
+  static const isHttps = true;
 
   ///2.api server end point
-  static const apiServer = '192.168.43.127:5001';
+  //static const apiServer = '192.168.43.127:5001';
+  static const apiServer = 'baoapitest.eden.org.tw';
+  //static const apiServer = '210.61.226.51';  
   //static const String apiServer = '192.168.66.11:83';
 
   ///3.aes key string with 16 chars
@@ -52,6 +56,7 @@ class Xp {
 
     //set style
     FunUt.textFontSize = 16;
+    FunUt.logHttpUrl = true;
   }
 
   /*
@@ -116,7 +121,17 @@ class Xp {
     }
   }
 
-  ///get attend status info<br>
+  ///get reply stage status json<br>
+  ///@return <name,color>
+  static Map<String, dynamic> replyStageStatusJson(String? status, int errorCount){
+    return StrUt.isEmpty(status) ? {'name': '未作答', 'color': Colors.black} :
+      (status == ReplyStageStatusEstr.right) ? {'name': '答對了', 'color': Colors.green} :
+      (status == ReplyStageStatusEstr.wrong) ? {'name': '答錯了', 'color': Colors.red} :
+      (status == ReplyStageStatusEstr.lock) ? {'name': '答錯$errorCount次', 'color': Colors.red} :
+      {'name': '??', 'color': Colors.red};
+  }
+
+  ///get attend status json<br>
   ///@return <name,color>
   static Map<String, dynamic> attendStatusJson(String? status) {
     return StrUt.isEmpty(status) ? {'name': '未參加', 'color': Colors.black} :
@@ -137,27 +152,26 @@ class Xp {
   }
 
   ///open stage form, 進行尋寶
-  static Future playGameA(BuildContext context, String baoId, String baoName,
+  static Future<dynamic> playGameA(BuildContext context, String baoId, String baoName,
       String replyType) async {
     if (replyType == ReplyTypeEstr.batch) {
-      ToolUt.openFormA(context,
-          StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));
+      //批次
+      return await ToolUt.openFormA(context, StageBatch(baoId: baoId, baoName: baoName, replyType: replyType));
     } else if (replyType == ReplyTypeEstr.step) {
-      //讀取目前關卡資料
-      await HttpUt.getJsonA(
-          context, 'Stage/GetNowStepRow', false, {'baoId': baoId}, (row) {
-        playStageStep(context, baoId, baoName, row['Id'].toString(), replyType);
+      //讀取目前進行關卡資料
+      await HttpUt.getJsonA(context, 'Stage/GetNowStepRow', false, {'baoId': baoId}, (row) {
+        return playStageStepA(context, baoId, baoName, row['Id'].toString(), replyType);
       });
     } else if (replyType == ReplyTypeEstr.anyStep) {
-      ToolUt.openFormA(context, StageAny(baoId: baoId, baoName: baoName));
+      return await ToolUt.openFormA(context, StageAny(baoId: baoId, baoName: baoName));
     }
   }
 
   ///by Step、AnyStep
-  static playStageStep(BuildContext context, String baoId, String baoName,
-      String stageId, String replyType) {
+  static Future<String?> playStageStepA(BuildContext context, String baoId, String baoName,
+      String stageId, String replyType) async {
     //開啟畫面
-    ToolUt.openFormA(
+    return await ToolUt.openFormA(
       context,
       StageStep(
         baoId: baoId,
@@ -282,6 +296,57 @@ class Xp {
     //download and unzip
     await HttpUt.saveUnzipA(context, action, json, dirImage);
     return 1;
+  }
+
+  ///get Bao body widget for 尋寶/我的尋寶
+  ///param stageIndex: 0(batch),n(step),-1(step read only)
+  ///_pagerSrv.getWidget(_pagerDto
+  static Widget getBaoBody(BuildContext context, PagerSrv pagerSrv, PagerDto<BaoRowDto> pagerDto, Function fnRender){
+    var rows = pagerDto.rows;    
+    if (rows.isEmpty) return WG2.noRowMsg();
+
+    var widgets = <Widget>[];
+    for (int i = 0; i < rows.length; i++) {
+      var row = rows[i];
+      var attendJson = Xp.attendStatusJson(row.attendStatus);
+      widgets.add(ListTile(
+        title: Row(children: [
+          Xp.baoHasMoney(row.prizeType)
+            ? const Icon(Icons.paid, color: Colors.amber)
+            : const Text(''),
+          Xp.baoHasGift(row.prizeType)
+            ? const Icon(Icons.redeem, color: Colors.blue)
+            : const Text(''),
+          row.isMove
+            ? const Icon(Icons.directions_run, color: Colors.red)
+            : const Text(''),
+          Text(row.name),
+        ]),
+        subtitle: Text('by: ${row.corp}\n${DateUt.format2(row.startTime)} 開始'),
+        trailing: WG.btn(attendJson['name'], ()=> Xp.onBaoDetailA(context, row, fnRender), attendJson['color']),
+      ));
+      widgets.add(WG.divider());
+    }
+
+    //var widgets = Xp.baosToWidgets(rows, rowsToTrails(rows));
+    widgets.add(pagerSrv.getWidget(pagerDto.recordsFiltered));
+    return ListView(children: widgets);
+  }
+
+  ///顯示尋寶明細頁
+  static Future onBaoDetailA(BuildContext context, BaoRowDto row, Function fnRender) async {
+    //BaoDetail回傳結果更新Bao
+    var result = await ToolUt.openFormA(context, BaoDetail(baoId: row.id, attendStatus: row.attendStatus));
+    if (result == AttendStatusEstr.attend){   //參加尋寶
+      row.attendStatus = AttendStatusEstr.attend;
+      fnRender();
+    } else if (result == 'P'){  //開始尋寶(AttendStatusEstr不包含此項目, for BaoDetail/Bao資料交換only)
+      result = await Xp.playGameA(context, row.id, row.name, row.replyType);
+      if (StrUt.notEmpty(result)){
+        row.attendStatus = result;
+        fnRender();
+      }
+    }
   }
 
   //get body widget for stageStep/stageBatch

@@ -6,10 +6,10 @@ class MyBao extends StatefulWidget {
   const MyBao({super.key});
 
   @override
-  _MyBaoState createState() => _MyBaoState();
+  MyBaoState createState() => MyBaoState();
 }
 
-class _MyBaoState extends State<MyBao> {
+class MyBaoState extends State<MyBao> {
   bool _isOk = false; //status
   late PagerSrv _pagerSrv; //pager service
   late PagerDto<BaoRowDto> _pagerDto;
@@ -17,15 +17,15 @@ class _MyBaoState extends State<MyBao> {
   @override
   void initState() {
     //set first, coz function parameter !!
-    _pagerSrv = PagerSrv(rebuildA);
+    _pagerSrv = PagerSrv(readRenderA);
 
     //call before reload()
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildA());
+    Future.delayed(Duration.zero, () => readRenderA());
   }
 
   //reload page
-  Future rebuildA() async {
+  Future readRenderA() async {
     if (!await Xp.isRegA(context)) return;
 
     //get rows & check
@@ -38,6 +38,13 @@ class _MyBaoState extends State<MyBao> {
     });
   }
 
+  /// render form
+  void render() {
+    _isOk = true;
+    setState(() {}); //call build()
+  }
+
+  /*
   ///get view body widget
   Widget getBody() {
     var rows = _pagerDto.rows;
@@ -53,18 +60,15 @@ class _MyBaoState extends State<MyBao> {
     var widgets = <Widget>[];
     for (int i = 0; i < rows.length; i++) {
       var row = rows[i];
-      var status = Xp.getAttendStatus(row.id);
-      widgets.add((status == AttendStatusEstr.finish)
-          ? WG.greenText('已答對')
-          /*WG2.textBtn(
-              '已答對',
-              () => ToolUt.openForm(context,
-                  StageStep(baoId: row.id, baoName: row.name, editable: false)))*/
-          : WG.linkBtn('解題',
-              () => Xp.playGameA(context, row.id, row.name, row.replyType)));
+      //var status = Xp.getAttendStatus(row.id);
+      widgets.add((row.attendStatus == AttendStatusEstr.finish) ? WG.greenText('已答對  ') :
+        (row.attendStatus == AttendStatusEstr.cancel) ? WG.redText('已取消  ') :
+        row.baoStatus ? WG.btn('解題',() => Xp.playGameA(context, row.id, row.name, row.replyType)) :
+        WG.textWG('未開始  '));
     }
     return widgets;
   }
+  */
 
   @override
   Widget build(BuildContext context) {
@@ -72,7 +76,7 @@ class _MyBaoState extends State<MyBao> {
 
     return Scaffold(
       appBar: WG2.appBar('我的尋寶'),
-      body: getBody(),
+      body: Xp.getBaoBody(context, _pagerSrv, _pagerDto, render),
     );
   }
 }//class

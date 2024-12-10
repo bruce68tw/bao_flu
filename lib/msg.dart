@@ -7,10 +7,10 @@ class Msg extends StatefulWidget {
   const Msg({super.key});
 
   @override
-  State<Msg> createState() => _MsgState();
+  State<Msg> createState() => MsgState();
 }
 
-class _MsgState extends State<Msg> {
+class MsgState extends State<Msg> {
   bool _isOk = false; //status
   late PagerSrv _pagerSrv; //pager service
   late PagerDto<MsgRowDto> _pagerDto;
@@ -18,15 +18,15 @@ class _MsgState extends State<Msg> {
   @override
   void initState() {
     //set first, coz function parameter !!
-    _pagerSrv = PagerSrv(rebuildA);
+    _pagerSrv = PagerSrv(readRenderA);
 
     //call before reload()
     super.initState();
-    Future.delayed(Duration.zero, () => rebuildA());
+    Future.delayed(Duration.zero, () => readRenderA());
   }
 
   /// reload page
-  Future rebuildA() async {
+  Future readRenderA() async {
     if (!await Xp.isRegA(context)) return;
 
     //get rows, check & set total rows
@@ -35,9 +35,14 @@ class _MsgState extends State<Msg> {
       if (json == null) return;
 
       _pagerDto = PagerDto<MsgRowDto>.fromJson(json, MsgRowDto.fromJson);
-      _isOk = true;
-      setState(() {});
+      render();
     });
+  }
+
+  /// render form
+  void render() {
+    _isOk = true;
+    setState(() {}); //call build()
   }
 
   ///get view body widget

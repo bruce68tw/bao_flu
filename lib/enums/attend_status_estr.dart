@@ -1,6 +1,6 @@
 //attend status enum string
 class AttendStatusEstr {
-  static const attend = '1';
-  static const finish = 'F';
-  static const cancel = 'X';
+  static const attend = 'A';  //已參加
+  static const finish = 'F';  //已完成
+  static const cancel = 'X';  //已取消
 }

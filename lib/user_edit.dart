@@ -7,10 +7,10 @@ class UserEdit extends StatefulWidget {
   const UserEdit({super.key});
 
   @override
-  _UserEditState createState() => _UserEditState();
+  UserEditState createState() => UserEditState();
 }
 
-class _UserEditState extends State<UserEdit> {
+class UserEditState extends State<UserEdit> {
   bool _isOk = false; //state variables
   bool _isNew = true; //new account or not
   bool _showAuth = false; //show auth field for new account or not
@@ -63,11 +63,11 @@ class _UserEditState extends State<UserEdit> {
       });
     }
 
-    if (run) {
-      _isOk = true;
-      setState(() {});
-    }
+    if (run) render();
   }
+
+  /// render form
+  void render()=> setState(()=> _isOk = true);
 
   ///create account
   Future onCreateA() async {
@@ -86,7 +86,7 @@ class _UserEditState extends State<UserEdit> {
       if (data == 'RECOVER') {
         run = false;
         ToolUt.ans(context, '這個Email已經存在, 是否回復帳號?', () {
-          ToolUt.openFormA(context, UserRecover(email: emailCtrl.text));
+          ToolUt.openFormA(context, UserRecover(email: emailCtrl.text), true);
         });
       }
     });
@@ -204,7 +204,7 @@ class _UserEditState extends State<UserEdit> {
                     },
                   ),
                   !_isNew ? WG.endBtn('修改資料', () => onUpdateA()) : 
-                  !_showAuth ? WG.btn('建立帳號2', onCreateA) : 
+                  !_showAuth ? WG.endBtn('建立帳號', () => onCreateA()) : 
                     Column(children: <Widget>[
                       //WG.tailBtn('建立帳戶'),
                       TextFormField(

@@ -4,10 +4,10 @@ class Sample extends StatefulWidget {
   const Sample({super.key});
 
   @override
-  _SampleState createState() => _SampleState();
+  SampleState createState() => SampleState();
 }
 
-class _SampleState extends State<Sample> {
+class SampleState extends State<Sample> {
   @override
   Widget build(BuildContext context) {
     return Container();
