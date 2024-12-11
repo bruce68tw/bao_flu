@@ -1,6 +1,6 @@
 # bao_flu
 
-A new Flutter project.
+A new Flutter project, need base_flu flutter library project.
 
 ## Getting Started
 
